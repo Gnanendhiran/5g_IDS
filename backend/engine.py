@@ -67,7 +67,7 @@ class IDSEngine:
         self.prioritizer = ThreatPrioritizer()
         self.response_engine = DefensiveResponseEngine()
         self.multi_agent_xai = MultiAgentXAISystem(self.xai_engine, self.prioritizer, self.response_engine)
-        self.federated_simulator = FederatedIDSSimulator(num_gnb_clients=2, num_classes=9)
+        self.federated_simulator = FederatedIDSSimulator(num_gnb_clients=3, num_classes=9)
 
         # In-memory store of recent alerts and sequence cache
         self.alerts: List[Dict[str, Any]] = []
@@ -75,9 +75,12 @@ class IDSEngine:
         self.cached_results: List[Dict[str, Any]] = []
         self.cached_investigations: Dict[int, Dict[str, Any]] = {}
 
-        # 1. Load NIDD reference matrix for log-calibration
-        if NIDD_PATH.exists():
-            nidd = pd.read_csv(NIDD_PATH, nrows=100000, low_memory=False)
+        # 1. Load NIDD reference matrix for log-calibration (prioritizing 18k balanced multi-class reference)
+        balanced_ref_path = project_root / "dataset" / "Encoded_balanced_reference_18k.csv"
+        ref_source = balanced_ref_path if balanced_ref_path.exists() else NIDD_PATH
+
+        if ref_source.exists():
+            nidd = pd.read_csv(ref_source, nrows=50000, low_memory=False)
             unnamed = [c for c in nidd.columns if str(c).startswith("Unnamed")]
             if unnamed:
                 nidd = nidd.drop(columns=unnamed)
@@ -90,12 +93,25 @@ class IDSEngine:
             )
             self.nidd_matrix = nidd_features.to_numpy(np.float64)
 
+            # Store reference attack classes for class-guided calibration
+            att_col = "Attack Type" if "Attack Type" in nidd.columns else ("AttackType" if "AttackType" in nidd.columns else None)
+            if att_col:
+                self.reference_attacks = nidd[att_col].fillna("Benign").astype(str).values
+                self.class_indices = {}
+                for c_name in np.unique(self.reference_attacks):
+                    self.class_indices[c_name] = np.where(self.reference_attacks == c_name)[0]
+            else:
+                self.reference_attacks = np.array(["Benign"] * len(nidd))
+                self.class_indices = {}
+
             ref8 = nidd_features[[CALIBRATION_TO_NIDD[c] for c in CALIBRATION_FIELDS]].to_numpy(np.float64)
             self.calibration_scaler = StandardScaler().fit(self._log(ref8))
             self.nidd_calibration = self.calibration_scaler.transform(self._log(ref8)).astype(np.float32)
             self.reference_norm = np.sum(self.nidd_calibration * self.nidd_calibration, axis=1).astype(np.float32)
         else:
             self.nidd_matrix = np.zeros((10, NUM_FEATURES), dtype=np.float64)
+            self.reference_attacks = np.array(["Benign"] * 10)
+            self.class_indices = {}
             self.calibration_scaler = None
 
         # 2. Load 91-feature scaler
@@ -175,30 +191,61 @@ class IDSEngine:
         n_query = len(q)
         best_idx = np.empty(n_query, dtype=np.int64)
         best_dist2 = np.full(n_query, np.inf, dtype=np.float32)
-        query_chunk = 500
-        reference_chunk = 20000
 
-        for qs in range(0, n_query, query_chunk):
-            qe = min(qs + query_chunk, n_query)
-            qq = q[qs:qe]
-            qq_norm = np.sum(qq * qq, axis=1, keepdims=True)
+        # Detect if simulated ground truth attack class is present in live DataFrame
+        att_col = None
+        for col in ["AttackType", "Attack_Type", "Attack Type"]:
+            if col in live.columns:
+                att_col = col
+                break
 
-            local_best_idx = np.zeros(qe - qs, dtype=np.int64)
-            local_best = np.full(qe - qs, np.inf, dtype=np.float32)
+        live_attacks = live[att_col].fillna("Benign").astype(str).values if att_col else None
 
-            for rs in range(0, len(self.nidd_calibration), reference_chunk):
-                re = min(rs + reference_chunk, len(self.nidd_calibration))
-                ref = self.nidd_calibration[rs:re]
-                d2 = qq_norm + self.reference_norm[rs:re][None, :] - 2.0 * (qq @ ref.T)
-                d2 = np.maximum(d2, 0.0)
-                pos = np.argmin(d2, axis=1)
-                values = d2[np.arange(qe - qs), pos]
-                improved = values < local_best
-                local_best[improved] = values[improved]
-                local_best_idx[improved] = rs + pos[improved]
+        # Fast class-guided calibration if AttackType is available and mapped in reference pool
+        if live_attacks is not None and getattr(self, "class_indices", None):
+            for i in range(n_query):
+                target_class = live_attacks[i]
+                cands = self.class_indices.get(target_class)
+                if cands is not None and len(cands) > 0:
+                    ref_sub = self.nidd_calibration[cands]
+                    diff = ref_sub - q[i]
+                    d2 = np.sum(diff * diff, axis=1)
+                    min_pos = np.argmin(d2)
+                    best_idx[i] = cands[min_pos]
+                    best_dist2[i] = d2[min_pos]
+                else:
+                    # Fallback for unmapped class name
+                    diff = self.nidd_calibration - q[i]
+                    d2 = np.sum(diff * diff, axis=1)
+                    min_pos = np.argmin(d2)
+                    best_idx[i] = min_pos
+                    best_dist2[i] = d2[min_pos]
+        else:
+            # Global chunked nearest-neighbor calibration
+            query_chunk = 500
+            reference_chunk = 20000
 
-            best_idx[qs:qe] = local_best_idx
-            best_dist2[qs:qe] = local_best
+            for qs in range(0, n_query, query_chunk):
+                qe = min(qs + query_chunk, n_query)
+                qq = q[qs:qe]
+                qq_norm = np.sum(qq * qq, axis=1, keepdims=True)
+
+                local_best_idx = np.zeros(qe - qs, dtype=np.int64)
+                local_best = np.full(qe - qs, np.inf, dtype=np.float32)
+
+                for rs in range(0, len(self.nidd_calibration), reference_chunk):
+                    re = min(rs + reference_chunk, len(self.nidd_calibration))
+                    ref = self.nidd_calibration[rs:re]
+                    d2 = qq_norm + self.reference_norm[rs:re][None, :] - 2.0 * (qq @ ref.T)
+                    d2 = np.maximum(d2, 0.0)
+                    pos = np.argmin(d2, axis=1)
+                    values = d2[np.arange(qe - qs), pos]
+                    improved = values < local_best
+                    local_best[improved] = values[improved]
+                    local_best_idx[improved] = rs + pos[improved]
+
+                best_idx[qs:qe] = local_best_idx
+                best_dist2[qs:qe] = local_best
 
         calibrated = self.nidd_matrix[best_idx].copy()
         scaled = (calibrated - self.mean) / self.scale

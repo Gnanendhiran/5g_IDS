@@ -156,10 +156,10 @@ class Test5GIDSComponents(unittest.TestCase):
 
     def test_08_federated_ids_simulation(self):
         """Test Federated IDS multi-cell partitioning and FedAvg aggregation."""
-        fed = FederatedIDSSimulator(num_gnb_clients=2, num_classes=9)
+        fed = FederatedIDSSimulator(num_gnb_clients=3, num_classes=9)
         results = fed.run_federated_rounds(rounds=2)
         
-        self.assertEqual(results["num_clients"], 2)
+        self.assertEqual(results["num_clients"], 3)
         self.assertEqual(len(results["rounds_summary"]), 2)
         self.assertGreater(results["bandwidth_per_round_mb"], 0.0)
         self.assertEqual(results["rounds_summary"][0]["aggregation_method"], "FedAvg")

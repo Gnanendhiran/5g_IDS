@@ -29,7 +29,7 @@ class FederatedIDSSimulator:
 
     def __init__(
         self,
-        num_gnb_clients: int = 2,
+        num_gnb_clients: int = 3,
         num_classes: int = 9,
         device: str = "cpu"
     ):

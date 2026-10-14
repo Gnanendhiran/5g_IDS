@@ -467,10 +467,23 @@ export default function App() {
   // Filtered sequences for the table based on queue mode & search
   const filteredSequences = useMemo(() => {
     return sortedSequences.filter(s => {
-      // Queue Filter
-      if (queueFilter === "active_only" && s.prediction === "Malicious" && s.is_mitigated) return false;
-      if (queueFilter === "active_only" && s.prediction === "Benign") return false;
-      if (queueFilter === "mitigated_only" && !s.is_mitigated) return false;
+      // Attack Filter
+      const isBenign = s.prediction === "Benign" || s.predicted_attack_type === "Benign";
+      const matchAttack =
+        selectedAttackFilter === "All" ||
+        (selectedAttackFilter === "Benign" ? isBenign : s.predicted_attack_type === selectedAttackFilter);
+
+      if (!matchAttack) return false;
+
+      // Queue Filter: only apply active_only / mitigated_only if NOT explicitly filtering for Benign
+      if (selectedAttackFilter !== "Benign") {
+        if (queueFilter === "active_only" && s.prediction === "Malicious" && s.is_mitigated) return false;
+        if (queueFilter === "active_only" && s.prediction === "Benign") return false;
+        if (queueFilter === "mitigated_only" && !s.is_mitigated) return false;
+      } else {
+        // If specifically viewing Benign, exclude only if user specifically clicked 'mitigated_only'
+        if (queueFilter === "mitigated_only") return false;
+      }
 
       // Text Search
       const matchSearch =
@@ -488,11 +501,7 @@ export default function App() {
           .toLowerCase()
           .includes(search.toLowerCase());
 
-      // Attack Filter
-      const matchAttack =
-        selectedAttackFilter === "All" || s.predicted_attack_type === selectedAttackFilter;
-
-      return matchSearch && matchAttack;
+      return matchSearch;
     });
   }, [sortedSequences, search, selectedAttackFilter, queueFilter]);
 
@@ -502,11 +511,17 @@ export default function App() {
       const atk = s.predicted_attack_type || "Benign";
       counts[atk] = (counts[atk] || 0) + 1;
     });
-    return Object.keys(counts).map(k => ({
-      name: k,
-      value: counts[k],
-      color: ATTACK_COLORS[k] || "#64748b"
-    }));
+    return Object.keys(counts)
+      .map(k => ({
+        name: k,
+        value: counts[k],
+        color: ATTACK_COLORS[k] || "#64748b"
+      }))
+      .sort((a, b) => {
+        const idxA = GENUINE_ATTACK_CLASSES.indexOf(a.name);
+        const idxB = GENUINE_ATTACK_CLASSES.indexOf(b.name);
+        return (idxA !== -1 ? idxA : 99) - (idxB !== -1 ? idxB : 99);
+      });
   }, [rawSequences]);
 
   return (
@@ -751,7 +766,7 @@ export default function App() {
               <div style={{ background: "#0f172a", padding: "12px 14px", borderRadius: "8px", border: "1px solid #1e293b" }}>
                 <span style={{ fontSize: "0.72rem", color: "#94a3b8", textTransform: "uppercase" }}>Where Detected</span>
                 <div style={{ fontWeight: "700", fontSize: "0.95rem", color: "#38bdf8", marginTop: "4px" }}>
-                  {currentTopActiveThreat.gnb_id} (Sector Alpha)
+                  {currentTopActiveThreat.gnb_id} (Sector {currentTopActiveThreat.gnb_id?.includes('1') ? 'A' : currentTopActiveThreat.gnb_id?.includes('2') ? 'B' : currentTopActiveThreat.gnb_id?.includes('3') ? 'C' : 'Alpha'})
                 </div>
                 <div style={{ fontSize: "0.78rem", color: "#cbd5e1" }}>
                   Target: <b>UE-{currentTopActiveThreat.ue_id}</b> | Slice: <b>{currentTopActiveThreat.slice_type}</b>
@@ -1101,7 +1116,14 @@ export default function App() {
 
               <select
                 value={selectedAttackFilter}
-                onChange={e => { setSelectedAttackFilter(e.target.value); setPageNumber(1); }}
+                onChange={e => {
+                  const val = e.target.value;
+                  setSelectedAttackFilter(val);
+                  if (val === "Benign" && queueFilter === "active_only") {
+                    setQueueFilter("all");
+                  }
+                  setPageNumber(1);
+                }}
                 style={{
                   padding: "8px 12px",
                   borderRadius: "6px",
@@ -1192,7 +1214,7 @@ export default function App() {
                           {/* Where Detected */}
                           <td style={{ padding: "14px 10px" }}>
                             <div style={{ fontWeight: "600", color: "#f8fafc" }}>
-                              {seq.gnb_id} (Sector A)
+                              {seq.gnb_id || 'gNB-1'} (Sector {String(seq.gnb_id || '').includes('2') ? 'B' : String(seq.gnb_id || '').includes('3') ? 'C' : 'A'})
                             </div>
                             <div style={{ fontSize: "0.74rem", color: "#94a3b8" }}>
                               Device: <b>UE-{seq.ue_id}</b>
@@ -1250,7 +1272,23 @@ export default function App() {
 
                           {/* Status / When Prevented */}
                           <td style={{ padding: "14px 10px" }}>
-                            {seq.is_mitigated ? (
+                            {seq.prediction === "Benign" || seq.predicted_attack_type === "Benign" ? (
+                              <span style={{
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: "4px",
+                                padding: "3px 8px",
+                                borderRadius: "4px",
+                                fontSize: "0.74rem",
+                                fontWeight: "700",
+                                background: "#064e3b",
+                                color: "#86efac",
+                                border: "1px solid #059669"
+                              }}>
+                                <Check size={12} />
+                                Normal Traffic
+                              </span>
+                            ) : seq.is_mitigated ? (
                               <div>
                                 <span style={{
                                   display: "inline-flex",
@@ -1342,7 +1380,22 @@ export default function App() {
                               alignItems: "center",
                               flexWrap: "nowrap"
                             }}>
-                              {!seq.is_mitigated ? (
+                              {seq.prediction === "Benign" || seq.predicted_attack_type === "Benign" ? (
+                                <span style={{
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: "4px",
+                                  padding: "6px 12px",
+                                  borderRadius: "6px",
+                                  fontSize: "0.75rem",
+                                  fontWeight: "600",
+                                  color: "#10b981",
+                                  background: "rgba(16, 185, 129, 0.12)",
+                                  border: "1px solid #10b981"
+                                }}>
+                                  <ShieldCheck size={13} /> Clear
+                                </span>
+                              ) : !seq.is_mitigated ? (
                                 <button
                                   onClick={() => executeMitigation(seq.action_id, seq.alert_id)}
                                   disabled={mitigatingId === seq.action_id || mitigatingId === seq.alert_id}
@@ -2283,80 +2336,155 @@ export default function App() {
             PAGE: NETWORK TOPOLOGY
         ======================================================== */}
         {page === "topology" && (
-          <div style={{ background: "#0f172a", border: "1px solid #1e293b", borderRadius: "12px", padding: "24px" }}>
-            <h3 style={{ fontSize: "1.2rem", fontWeight: "700", margin: "0 0 8px 0" }}>Simulated 5G Multi-Cell Cellular Topology</h3>
-            <p style={{ fontSize: "0.85rem", color: "#94a3b8", margin: "0 0 24px 0" }}>
-              2 Base Stations (gNB-1, gNB-2) serving 30 User Equipments across eMBB, URLLC, and mMTC slices.
-            </p>
-
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px" }}>
-              {/* gNB 1 */}
-              <div style={{ background: "#1e293b", borderRadius: "10px", padding: "20px", border: "1px solid #334155" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "16px" }}>
-                  <Radio size={24} color="#38bdf8" />
-                  <div>
-                    <h4 style={{ margin: 0, fontSize: "1rem", color: "#f8fafc" }}>gNB-1 (Cell Sector A)</h4>
-                    <span style={{ fontSize: "0.75rem", color: "#94a3b8" }}>Position: (250m, 500m) | Active UEs: 15</span>
-                  </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+            {/* Topology Header & Fleet KPI Bar */}
+            <div style={{ background: "#0f172a", border: "1px solid #1e293b", borderRadius: "12px", padding: "24px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "16px", marginBottom: "20px" }}>
+                <div>
+                  <h3 style={{ fontSize: "1.25rem", fontWeight: "700", margin: "0 0 6px 0", color: "#f8fafc" }}>
+                    Simulated 5G Multi-Cell Cellular Topology & UE Slice Allocation
+                  </h3>
+                  <p style={{ fontSize: "0.86rem", color: "#94a3b8", margin: 0 }}>
+                    3 Serving Base Stations (gNB-1, gNB-2, gNB-3) monitoring 45 User Equipments (UE-1 through UE-45) partitioned across 3 standardized 5G Network Slices.
+                  </p>
                 </div>
-
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: "8px" }}>
-                  {Array.from({ length: 15 }).map((_, i) => {
-                    const ueNum = (i + 1) * 2;
-                    const isMalicious = rawSequences.some(s => s.ue_id === ueNum && s.prediction === "Malicious" && !s.is_mitigated);
-                    const isPrevented = rawSequences.some(s => s.ue_id === ueNum && s.is_mitigated);
-                    return (
-                      <div key={ueNum} style={{
-                        padding: "8px",
-                        borderRadius: "6px",
-                        textAlign: "center",
-                        background: isMalicious ? "#7f1d1d" : (isPrevented ? "#064e3b" : "#0f172a"),
-                        border: isMalicious ? "1px solid #ef4444" : (isPrevented ? "1px solid #10b981" : "1px solid #334155"),
-                        fontSize: "0.75rem"
-                      }}>
-                        UE-{ueNum}
-                        <div style={{ fontSize: "0.65rem", color: isMalicious ? "#fca5a5" : (isPrevented ? "#86efac" : "#10b981"), marginTop: "2px" }}>
-                          {isMalicious ? "Active" : (isPrevented ? "Contained" : "Nominal")}
-                        </div>
-                      </div>
-                    );
-                  })}
+                <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                  <div style={{ background: "#1e293b", border: "1px solid #334155", borderRadius: "8px", padding: "8px 14px", textAlign: "center" }}>
+                    <div style={{ fontSize: "0.72rem", color: "#94a3b8" }}>TOTAL FLEET</div>
+                    <div style={{ fontSize: "1.2rem", fontWeight: "700", color: "#38bdf8" }}>45 UEs</div>
+                  </div>
+                  <div style={{ background: "#1e293b", border: "1px solid #334155", borderRadius: "8px", padding: "8px 14px", textAlign: "center" }}>
+                    <div style={{ fontSize: "0.72rem", color: "#94a3b8" }}>BASE STATIONS</div>
+                    <div style={{ fontSize: "1.2rem", fontWeight: "700", color: "#a855f7" }}>3 gNodeBs</div>
+                  </div>
+                  <div style={{ background: "#1e293b", border: "1px solid #334155", borderRadius: "8px", padding: "8px 14px", textAlign: "center" }}>
+                    <div style={{ fontSize: "0.72rem", color: "#94a3b8" }}>ACTIVE ATTACKS</div>
+                    <div style={{ fontSize: "1.2rem", fontWeight: "700", color: "#ef4444" }}>
+                      {rawSequences.filter(s => s.prediction === "Malicious" && !s.is_mitigated).length}
+                    </div>
+                  </div>
+                  <div style={{ background: "#1e293b", border: "1px solid #334155", borderRadius: "8px", padding: "8px 14px", textAlign: "center" }}>
+                    <div style={{ fontSize: "0.72rem", color: "#94a3b8" }}>CONTAINED</div>
+                    <div style={{ fontSize: "1.2rem", fontWeight: "700", color: "#10b981" }}>
+                      {rawSequences.filter(s => s.is_mitigated).length}
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              {/* gNB 2 */}
-              <div style={{ background: "#1e293b", borderRadius: "10px", padding: "20px", border: "1px solid #334155" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "16px" }}>
-                  <Radio size={24} color="#38bdf8" />
+              {/* 5G Network Slices Allocation Guide */}
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "14px", background: "#020617", padding: "14px", borderRadius: "8px", border: "1px solid #1e293b" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                  <div style={{ width: "12px", height: "12px", borderRadius: "3px", background: "#3b82f6" }} />
                   <div>
-                    <h4 style={{ margin: 0, fontSize: "1rem", color: "#f8fafc" }}>gNB-2 (Cell Sector B)</h4>
-                    <span style={{ fontSize: "0.75rem", color: "#94a3b8" }}>Position: (750m, 500m) | Active UEs: 15</span>
+                    <div style={{ fontSize: "0.82rem", fontWeight: "700", color: "#93c5fd" }}>eMBB (Enhanced Mobile Broadband)</div>
+                    <div style={{ fontSize: "0.72rem", color: "#64748b" }}>UE-1 to UE-15 (High throughput video & data)</div>
                   </div>
                 </div>
-
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: "8px" }}>
-                  {Array.from({ length: 15 }).map((_, i) => {
-                    const ueNum = (i * 2) + 1;
-                    const isMalicious = rawSequences.some(s => s.ue_id === ueNum && s.prediction === "Malicious" && !s.is_mitigated);
-                    const isPrevented = rawSequences.some(s => s.ue_id === ueNum && s.is_mitigated);
-                    return (
-                      <div key={ueNum} style={{
-                        padding: "8px",
-                        borderRadius: "6px",
-                        textAlign: "center",
-                        background: isMalicious ? "#7f1d1d" : (isPrevented ? "#064e3b" : "#0f172a"),
-                        border: isMalicious ? "1px solid #ef4444" : (isPrevented ? "1px solid #10b981" : "1px solid #334155"),
-                        fontSize: "0.75rem"
-                      }}>
-                        UE-{ueNum}
-                        <div style={{ fontSize: "0.65rem", color: isMalicious ? "#fca5a5" : (isPrevented ? "#86efac" : "#10b981"), marginTop: "2px" }}>
-                          {isMalicious ? "Active" : (isPrevented ? "Contained" : "Nominal")}
-                        </div>
-                      </div>
-                    );
-                  })}
+                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                  <div style={{ width: "12px", height: "12px", borderRadius: "3px", background: "#8b5cf6" }} />
+                  <div>
+                    <div style={{ fontSize: "0.82rem", fontWeight: "700", color: "#d8b4fe" }}>URLLC (Ultra-Reliable Low-Latency)</div>
+                    <div style={{ fontSize: "0.72rem", color: "#64748b" }}>UE-16 to UE-30 (Mission-critical telemetry)</div>
+                  </div>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                  <div style={{ width: "12px", height: "12px", borderRadius: "3px", background: "#22c55e" }} />
+                  <div>
+                    <div style={{ fontSize: "0.82rem", fontWeight: "700", color: "#86efac" }}>mMTC (Massive Machine-Type)</div>
+                    <div style={{ fontSize: "0.72rem", color: "#64748b" }}>UE-31 to UE-45 (Sensors & IoT devices)</div>
+                  </div>
                 </div>
               </div>
+            </div>
+
+            {/* 3 gNodeB Multi-Cell Sector Grid */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(360px, 1fr))", gap: "20px" }}>
+              {[
+                { id: "gNB-1", sector: "Cell Sector A", pos: "(250m, 500m)", color: "#38bdf8", ues: [1, 4, 7, 10, 13, 16, 19, 22, 25, 28, 31, 34, 37, 40, 43] },
+                { id: "gNB-2", sector: "Cell Sector B", pos: "(750m, 500m)", color: "#a855f7", ues: [2, 5, 8, 11, 14, 17, 20, 23, 26, 29, 32, 35, 38, 41, 44] },
+                { id: "gNB-3", sector: "Cell Sector C", pos: "(500m, 850m)", color: "#10b981", ues: [3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36, 39, 42, 45] }
+              ].map(gnb => {
+                const gnbSeqs = rawSequences.filter(s => s.gnb_id === gnb.id || (!s.gnb_id && gnb.ues.includes(s.ue_id)));
+                const gnbMalicious = gnbSeqs.filter(s => s.prediction === "Malicious" && !s.is_mitigated).length;
+                const gnbContained = gnbSeqs.filter(s => s.is_mitigated).length;
+
+                return (
+                  <div key={gnb.id} style={{ background: "#1e293b", borderRadius: "10px", padding: "20px", border: "1px solid #334155", display: "flex", flexDirection: "column", gap: "16px" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                        <div style={{ width: "36px", height: "36px", borderRadius: "8px", background: "#0f172a", display: "flex", alignItems: "center", justifyContent: "center", border: `1px solid ${gnb.color}` }}>
+                          <Radio size={20} color={gnb.color} />
+                        </div>
+                        <div>
+                          <h4 style={{ margin: 0, fontSize: "1rem", color: "#f8fafc" }}>{gnb.id} ({gnb.sector})</h4>
+                          <span style={{ fontSize: "0.75rem", color: "#94a3b8" }}>Pos: {gnb.pos} | Serving 15 UEs</span>
+                        </div>
+                      </div>
+                      <div style={{ display: "flex", gap: "6px" }}>
+                        {gnbMalicious > 0 && (
+                          <span style={{ background: "#7f1d1d", color: "#fca5a5", border: "1px solid #ef4444", fontSize: "0.7rem", fontWeight: "700", padding: "2px 6px", borderRadius: "4px" }}>
+                            {gnbMalicious} Threats
+                          </span>
+                        )}
+                        {gnbContained > 0 && (
+                          <span style={{ background: "#064e3b", color: "#86efac", border: "1px solid #10b981", fontSize: "0.7rem", fontWeight: "700", padding: "2px 6px", borderRadius: "4px" }}>
+                            {gnbContained} Protected
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* 15 UEs per gNB (5 cols x 3 rows) */}
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: "8px" }}>
+                      {gnb.ues.map(ueNum => {
+                        const sliceName = ueNum <= 15 ? "eMBB" : ueNum <= 30 ? "URLLC" : "mMTC";
+                        const sliceColor = ueNum <= 15 ? "#3b82f6" : ueNum <= 30 ? "#8b5cf6" : "#22c55e";
+                        
+                        const ueSeqs = rawSequences.filter(s => s.ue_id === ueNum);
+                        const isMalicious = ueSeqs.some(s => s.prediction === "Malicious" && !s.is_mitigated);
+                        const isPrevented = ueSeqs.some(s => s.is_mitigated);
+                        const activeThreatSeq = ueSeqs.find(s => s.prediction === "Malicious" && !s.is_mitigated);
+
+                        return (
+                          <div
+                            key={ueNum}
+                            onClick={() => {
+                              if (activeThreatSeq) handleSelectSequence(activeThreatSeq);
+                              else if (ueSeqs.length > 0) handleSelectSequence(ueSeqs[0]);
+                            }}
+                            title={`UE-${ueNum} [${sliceName}] - ${isMalicious ? 'Active Attack Detected' : isPrevented ? 'Contained' : 'Nominal'}`}
+                            style={{
+                              padding: "8px 4px",
+                              borderRadius: "6px",
+                              textAlign: "center",
+                              background: isMalicious ? "#7f1d1d" : (isPrevented ? "#064e3b" : "#0f172a"),
+                              border: isMalicious ? "1px solid #ef4444" : (isPrevented ? "1px solid #10b981" : "1px solid #334155"),
+                              fontSize: "0.72rem",
+                              cursor: ueSeqs.length > 0 ? "pointer" : "default",
+                              transition: "all 0.15s ease",
+                              boxShadow: isMalicious ? "0 0 8px rgba(239, 68, 68, 0.4)" : "none"
+                            }}
+                          >
+                            <div style={{ fontWeight: "700", color: "#f8fafc" }}>UE-{ueNum}</div>
+                            <div style={{ fontSize: "0.62rem", color: sliceColor, fontWeight: "600", marginTop: "1px" }}>
+                              {sliceName}
+                            </div>
+                            <div style={{
+                              fontSize: "0.62rem",
+                              color: isMalicious ? "#fca5a5" : (isPrevented ? "#86efac" : "#64748b"),
+                              marginTop: "2px",
+                              fontWeight: isMalicious || isPrevented ? "700" : "500"
+                            }}>
+                              {isMalicious ? (activeThreatSeq?.predicted_attack_type ? activeThreatSeq.predicted_attack_type.slice(0, 7) : "Active") : (isPrevented ? "Contained" : "Nominal")}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}
@@ -2369,8 +2497,10 @@ export default function App() {
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "16px" }}>
               <div style={{ background: "#0f172a", border: "1px solid #1e293b", borderRadius: "12px", padding: "20px" }}>
                 <span style={{ fontSize: "0.8rem", color: "#94a3b8" }}>Participating gNB Clients</span>
-                <div style={{ fontSize: "1.8rem", fontWeight: "700", marginTop: "8px", color: "#38bdf8" }}>2 gNB Cells</div>
-                <span style={{ fontSize: "0.75rem", color: "#64748b" }}>Local cell data isolated; zero raw flows shared</span>
+                <div style={{ fontSize: "1.8rem", fontWeight: "700", marginTop: "8px", color: "#38bdf8" }}>
+                  {federatedData.num_clients || 3} gNB Cells
+                </div>
+                <span style={{ fontSize: "0.75rem", color: "#64748b" }}>gNB-1, gNB-2, gNB-3 local cell data isolated; zero raw flows shared</span>
               </div>
               <div style={{ background: "#0f172a", border: "1px solid #1e293b", borderRadius: "12px", padding: "20px" }}>
                 <span style={{ fontSize: "0.8rem", color: "#94a3b8" }}>Aggregation Algorithm</span>
