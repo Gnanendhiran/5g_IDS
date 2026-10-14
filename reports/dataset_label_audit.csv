@@ -1,0 +1,10 @@
+Original_Attack_Type,Normalized_Class,Class_Index,Binary_Label,Dataset_Source,Total_Sequences,Status
+Benign,Benign,0,0,5G-NIDD,17738,Verified in 5G-NIDD
+UDPFlood,UDPFlood,1,1,5G-NIDD,18527,Verified in 5G-NIDD
+HTTPFlood,HTTPFlood,2,1,5G-NIDD,5846,Verified in 5G-NIDD
+SlowrateDoS,SlowrateDoS,3,1,5G-NIDD,3163,Verified in 5G-NIDD
+TCPConnectScan,TCPConnectScan,4,1,5G-NIDD,819,Verified in 5G-NIDD
+SYNScan,SYNScan,5,1,5G-NIDD,821,Verified in 5G-NIDD
+UDPScan,UDPScan,6,1,5G-NIDD,725,Verified in 5G-NIDD
+SYNFlood,SYNFlood,7,1,5G-NIDD,779,Verified in 5G-NIDD
+ICMPFlood,ICMPFlood,8,1,5G-NIDD,217,Verified in 5G-NIDD

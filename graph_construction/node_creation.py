@@ -1,6 +1,7 @@
 import os
 import pandas as pd
 import numpy as np
+import scipy.io as sio
 from sklearn.preprocessing import StandardScaler
 
 # =====================================================
@@ -74,11 +75,53 @@ print(f"NaN After Cleaning  : {nan_after:,}")
 # Feature Normalization
 # -----------------------------------------------------
 
+print("\nFitting StandardScaler...")
+
 scaler = StandardScaler()
 
 X = scaler.fit_transform(X)
 
 X = X.astype(np.float32)
+
+print("StandardScaler completed.")
+
+# =====================================================
+# EXPORT EXACT PYTHON SCALER
+# =====================================================
+
+print("\n")
+print("=" * 60)
+print("EXPORTING PYTHON STANDARD SCALER")
+print("=" * 60)
+
+scaler_output_dir = "outputs/sequence_dataset"
+
+os.makedirs(
+    scaler_output_dir,
+    exist_ok=True
+)
+
+scaler_file = os.path.join(
+    scaler_output_dir,
+    "python_scaler_91.mat"
+)
+
+sio.savemat(
+    scaler_file,
+    {
+        "mean_": scaler.mean_,
+        "scale_": scaler.scale_,
+        "var_": scaler.var_,
+        "n_features_in_": scaler.n_features_in_
+    }
+)
+
+print("\nPython scaler exported successfully.")
+
+print("Number of features :", scaler.n_features_in_)
+print("Mean shape         :", scaler.mean_.shape)
+print("Scale shape        :", scaler.scale_.shape)
+print("Scaler file        :", scaler_file)
 
 # -----------------------------------------------------
 # Create Normalized DataFrame

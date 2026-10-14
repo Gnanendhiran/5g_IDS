@@ -1,0 +1,39 @@
+HTSTCL-GNN MULTICLASS ATTACK DETECTION - TEST EVALUATION REPORT
+======================================================================
+
+Model: HTSTCL_GNN_Multiclass (Dual Head)
+Best Training Epoch: 10
+Test Samples: 7,296
+
+Summary Metrics:
+  Overall Accuracy   : 98.12%
+  Macro Precision    : 99.00%
+  Macro Recall       : 98.68%
+  Macro F1-Score     : 98.83%
+  Weighted Precision : 98.17%
+  Weighted Recall    : 98.12%
+  Weighted F1-Score  : 98.12%
+
+Binary Detection Metrics:
+  Binary Accuracy  : 98.26%
+  Binary Precision : 97.63%
+  Binary Recall    : 99.68%
+  Binary F1-Score  : 98.64%
+
+Detailed Per-Class Breakdown:
+                precision    recall  f1-score   support
+
+        Benign     0.9941    0.9579    0.9757      2661
+      UDPFlood     0.9615    0.9972    0.9790      2808
+     HTTPFlood     0.9976    0.9917    0.9947       848
+   SlowrateDoS     0.9919    0.9939    0.9929       491
+TCPConnectScan     0.9821    1.0000    0.9910       110
+       SYNScan     1.0000    0.9912    0.9956       113
+       UDPScan     0.9915    0.9832    0.9873       119
+      SYNFlood     0.9912    0.9658    0.9784       117
+     ICMPFlood     1.0000    1.0000    1.0000        29
+
+      accuracy                         0.9812      7296
+     macro avg     0.9900    0.9868    0.9883      7296
+  weighted avg     0.9817    0.9812    0.9812      7296
+

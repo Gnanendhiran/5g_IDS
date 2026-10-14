@@ -1,0 +1,2 @@
+Model,Accuracy,Precision,Recall,F1_Score,Test_Samples
+HTSTCL-GNN Multiclass (Derived Binary),0.9826,0.9763,0.9968,0.9864,7296

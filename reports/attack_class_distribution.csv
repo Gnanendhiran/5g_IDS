@@ -1,0 +1,10 @@
+multiclass_index,original_label,normalized_label,binary_label,total_samples,percentage,train_count,val_count,test_count
+0,Benign,Benign,Benign,17738,36.47,12416,2661,2661
+1,UDPFlood,UDPFlood,Malicious,18527,38.09,12949,2770,2808
+2,HTTPFlood,HTTPFlood,Malicious,5846,12.02,4126,872,848
+3,SlowrateDoS,SlowrateDoS,Malicious,3163,6.5,2197,475,491
+4,TCPConnectScan,TCPConnectScan,Malicious,819,1.68,574,135,110
+5,SYNScan,SYNScan,Malicious,821,1.69,586,122,113
+6,UDPScan,UDPScan,Malicious,725,1.49,497,109,119
+7,SYNFlood,SYNFlood,Malicious,779,1.6,545,117,117
+8,ICMPFlood,ICMPFlood,Malicious,217,0.45,154,34,29

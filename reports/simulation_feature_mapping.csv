@@ -1,0 +1,23 @@
+Simulation_Field,Field_Type,Meaning,Mapping_Or_Usage
+SampleID,Metadata,Record identifier,Preserved for tracking; excluded from input features
+UEID,Metadata,User Equipment identifier,Preserved for tracking and SOC visualization; excluded from input features
+TrafficType,Metadata,"Traffic profile (e.g., eMBB, URLLC, mMTC)",Preserved for investigation; excluded from input features
+AttackType,Ground Truth,Ground truth attack category,STRICTLY GROUND TRUTH ONLY; NEVER fed to model input
+PacketCount,Network Measurement,Total packets in time window,Mapped to TotPkts
+Bytes,Network Measurement,Total bytes in time window,Mapped to TotBytes
+Duration,Network Measurement,Flow duration in seconds,Mapped to Dur and RunTime
+PacketRate,Network Measurement,Packets per second,Mapped to Rate
+ByteRate,Network Measurement,Bytes per second,Mapped to Load (scaled to bps)
+MeanPacketSize,Network Measurement,Mean packet size in bytes,Mapped to sMeanPktSz and dMeanPktSz
+MinPacketSize,Network Measurement,Minimum packet size in bytes,Mapped to Min
+MaxPacketSize,Network Measurement,Maximum packet size in bytes,Mapped to Max
+InterArrivalMean,Network Measurement,Mean inter-packet arrival time,Mapped to Mean and SrcGap
+InterArrivalStd,Network Measurement,Std dev of arrival times,Used in calibration distance
+Burstiness,Network Measurement,Traffic burst index,Used in threat prioritization scoring
+FlowDuration,Network Measurement,Total active flow lifetime,Mapped to Dur and Sum
+Protocol,Network Measurement,Network protocol string (TCP/UDP/ICMP),"One-hot mapped to tcp, udp, icmp binary flags"
+SourcePort,Network Measurement,Source transport port,Used for flow key; excluded from normalized features
+DestinationPort,Network Measurement,Destination transport port,Used for attack type heuristic check
+RetransmissionRate,Network Measurement,Fraction of retransmitted packets,Used in threat prioritization
+Jitter,Network Measurement,Packet delay variation in seconds,"Mapped to TcpRtt, SynAck, AckDat"
+LossRate,Network Measurement,"Packet loss fraction [0, 1]",Mapped to pLoss (percent) and Loss counts
