@@ -542,12 +542,8 @@ export default function App() {
             { id: "live", label: "Priority Threat Stream", icon: Target },
             { id: "upload", label: "Simulations & Upload", icon: Upload },
             { id: "investigate", label: "Multi-Agent XAI Center", icon: BrainCircuit },
-            { id: "response", label: "Containment Command", icon: ShieldCheck },
             { id: "topology", label: "Network Topology", icon: Network },
-            { id: "analytics", label: "Attack Analytics", icon: BarChart3 },
-            { id: "federated", label: "Federated IDS", icon: GitBranch },
-            { id: "model", label: "Model Benchmark", icon: Cpu },
-            { id: "reports", label: "Compliance & Export", icon: Download }
+            { id: "analytics", label: "Attack Analytics", icon: BarChart3 }
           ].map(tab => {
             const Icon = tab.icon;
             const active = page === tab.id;
@@ -604,12 +600,8 @@ export default function App() {
               {page === "live" && "Prioritized 5G Threat Mitigation Queue (High ➔ Low)"}
               {page === "upload" && "5G Simulation Datasets & Live CSV Ingestion"}
               {page === "investigate" && "Multi-AI Agent Explainable AI & Containment"}
-              {page === "response" && "Defensive Mitigation & Autonomous Containment Engine"}
               {page === "topology" && "5G Multi-Cell Cellular Topology & UE Slice Mapping"}
               {page === "analytics" && "Multiclass 5G Attack Analytics (5G-NIDD)"}
-              {page === "federated" && "Federated IDS (Multi-gNB Collaborative FedAvg)"}
-              {page === "model" && "HTSTCL-GNN Dual-Head Architecture & Benchmarks"}
-              {page === "reports" && "Compliance Audits & Data Export"}
             </h2>
             <p style={{ margin: 0, fontSize: "0.88rem", color: "#94a3b8" }}>
               Hierarchical Spatio-Temporal Graph Neural Network with Evidence-Based Prioritization & Dynamic Mitigation
@@ -936,7 +928,7 @@ export default function App() {
             </div>
             <div style={{ display: "flex", gap: "10px" }}>
               <button
-                onClick={() => setPage("response")}
+                onClick={() => setPage("live")}
                 style={{
                   display: "flex",
                   alignItems: "center",
@@ -951,8 +943,8 @@ export default function App() {
                   cursor: "pointer"
                 }}
               >
-                <Shield size={16} />
-                View Containment History
+                <Target size={16} />
+                View Priority Threat Stream
               </button>
             </div>
           </div>
@@ -1099,7 +1091,7 @@ export default function App() {
                 <Search size={16} color="#64748b" style={{ position: "absolute", left: "12px", top: "10px" }} />
                 <input
                   type="text"
-                  placeholder="Filter by UE, gNB, Protocol, Slice, Alert ID..."
+                  placeholder="Filter by UE, gNB, Protocol, Alert ID..."
                   value={search}
                   onChange={e => { setSearch(e.target.value); setPageNumber(1); }}
                   style={{
@@ -1151,7 +1143,6 @@ export default function App() {
                   <tr style={{ borderBottom: "2px solid #1e293b", color: "#94a3b8", textAlign: "left" }}>
                     <th style={{ padding: "12px 10px", width: "130px", minWidth: "130px" }}>Priority Rank</th>
                     <th style={{ padding: "12px 10px", width: "230px", minWidth: "220px" }}>Where Detected</th>
-                    <th style={{ padding: "12px 10px", width: "90px", minWidth: "90px" }}>Slice</th>
                     <th style={{ padding: "12px 10px", width: "80px", minWidth: "80px" }}>Protocol</th>
                     <th style={{ padding: "12px 10px", width: "170px", minWidth: "160px" }}>Attack Classification</th>
                     <th style={{ padding: "12px 10px", width: "110px", minWidth: "105px" }}>Packet Count</th>
@@ -1164,7 +1155,7 @@ export default function App() {
                 <tbody>
                   {filteredSequences.length === 0 ? (
                     <tr>
-                      <td colSpan="10" style={{ padding: "32px", textAlign: "center", color: "#64748b" }}>
+                      <td colSpan="9" style={{ padding: "32px", textAlign: "center", color: "#64748b" }}>
                         No threats found matching the current queue filter.
                       </td>
                     </tr>
@@ -1219,21 +1210,6 @@ export default function App() {
                             <div style={{ fontSize: "0.74rem", color: "#94a3b8" }}>
                               Device: <b>UE-{seq.ue_id}</b>
                             </div>
-                          </td>
-
-                          {/* Network Slice */}
-                          <td style={{ padding: "14px 10px" }}>
-                            <span style={{
-                              padding: "3px 8px",
-                              borderRadius: "4px",
-                              fontSize: "0.72rem",
-                              fontWeight: "700",
-                              background: SLICE_COLORS[seq.slice_type]?.bg || "#1e293b",
-                              color: SLICE_COLORS[seq.slice_type]?.text || "#cbd5e1",
-                              border: `1px solid ${SLICE_COLORS[seq.slice_type]?.border || '#334155'}`
-                            }}>
-                              {seq.slice_type}
-                            </span>
                           </td>
 
                           {/* Protocol */}
@@ -2203,101 +2179,6 @@ export default function App() {
         )}
 
         {/* ========================================================
-            PAGE: DEFENSIVE RESPONSE & CONTAINMENT
-        ======================================================== */}
-        {page === "response" && (
-          <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
-            <div style={{ background: "#0f172a", border: "1px solid #1e293b", borderRadius: "12px", padding: "24px" }}>
-              <h3 style={{ fontSize: "1.2rem", fontWeight: "700", margin: "0 0 8px 0" }}>Active Containment Policies & Execution Log</h3>
-              <p style={{ fontSize: "0.85rem", color: "#94a3b8", margin: "0 0 20px 0" }}>
-                Enforce dynamic flow shaping, slice isolation, or TCP resets directly at the serving radio unit (gNodeB).
-              </p>
-
-              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.85rem" }}>
-                <thead>
-                  <tr style={{ borderBottom: "1px solid #1e293b", color: "#64748b", textAlign: "left" }}>
-                    <th style={{ padding: "10px" }}>Action ID</th>
-                    <th style={{ padding: "10px" }}>Target Device</th>
-                    <th style={{ padding: "10px" }}>Serving Cell</th>
-                    <th style={{ padding: "10px" }}>Policy Name</th>
-                    <th style={{ padding: "10px" }}>Status</th>
-                    <th style={{ padding: "10px" }}>When Executed</th>
-                    <th style={{ padding: "10px", textAlign: "right" }}>Control</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {responseHistory.length === 0 ? (
-                    <tr>
-                      <td colSpan="7" style={{ padding: "24px", textAlign: "center", color: "#64748b" }}>
-                        No containment policies executed yet. Inspect an alert sequence to trigger mitigation.
-                      </td>
-                    </tr>
-                  ) : (
-                    responseHistory.map(act => (
-                      <tr key={act.action_id} style={{ borderBottom: "1px solid #1e293b" }}>
-                        <td style={{ padding: "12px 10px", color: "#38bdf8", fontWeight: "600" }}>{act.action_id}</td>
-                        <td style={{ padding: "12px 10px" }}>UE-{act.target_ue}</td>
-                        <td style={{ padding: "12px 10px" }}>{act.serving_gnb}</td>
-                        <td style={{ padding: "12px 10px", fontWeight: "600" }}>{act.action_name}</td>
-                        <td style={{ padding: "12px 10px" }}>
-                          <span style={{
-                            padding: "3px 8px",
-                            borderRadius: "4px",
-                            fontSize: "0.75rem",
-                            fontWeight: "600",
-                            background: act.status === "Executed" ? "#064e3b" : (act.status === "Rolled Back" ? "#334155" : "#7c2d12"),
-                            color: act.status === "Executed" ? "#86efac" : (act.status === "Rolled Back" ? "#94a3b8" : "#fdba74")
-                          }}>
-                            {act.status}
-                          </span>
-                        </td>
-                        <td style={{ padding: "12px 10px", color: "#94a3b8" }}>{act.execution_timestamp || act.timestamp}</td>
-                        <td style={{ padding: "12px 10px", textAlign: "right" }}>
-                          {act.status === "Executed" ? (
-                            <button
-                              onClick={() => rollbackMitigation(act.action_id, act.alert_id)}
-                              disabled={mitigatingId === act.action_id || mitigatingId === act.alert_id}
-                              style={{
-                                padding: "4px 10px",
-                                borderRadius: "4px",
-                                border: "1px solid #334155",
-                                background: "#1e293b",
-                                color: "#f8fafc",
-                                cursor: (mitigatingId === act.action_id || mitigatingId === act.alert_id) ? "not-allowed" : "pointer",
-                                fontSize: "0.75rem"
-                              }}
-                            >
-                              {mitigatingId === act.action_id || mitigatingId === act.alert_id ? "Reverting..." : "Rollback"}
-                            </button>
-                          ) : (
-                            <button
-                              onClick={() => executeMitigation(act.action_id, act.alert_id)}
-                              disabled={mitigatingId === act.action_id || mitigatingId === act.alert_id}
-                              style={{
-                                padding: "4px 10px",
-                                borderRadius: "4px",
-                                border: "none",
-                                background: (mitigatingId === act.action_id || mitigatingId === act.alert_id) ? "#991b1b" : "#ef4444",
-                                color: "#fff",
-                                cursor: (mitigatingId === act.action_id || mitigatingId === act.alert_id) ? "not-allowed" : "pointer",
-                                fontSize: "0.75rem",
-                                fontWeight: "600"
-                              }}
-                            >
-                              {mitigatingId === act.action_id || mitigatingId === act.alert_id ? "Enforcing..." : "Enforce"}
-                            </button>
-                          )}
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-        {/* ========================================================
             PAGE: ATTACK ANALYTICS
         ======================================================== */}
         {page === "analytics" && analytics && (
@@ -2485,134 +2366,6 @@ export default function App() {
                   </div>
                 );
               })}
-            </div>
-          </div>
-        )}
-
-        {/* ========================================================
-            PAGE: FEDERATED IDS
-        ======================================================== */}
-        {page === "federated" && federatedData && (
-          <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "16px" }}>
-              <div style={{ background: "#0f172a", border: "1px solid #1e293b", borderRadius: "12px", padding: "20px" }}>
-                <span style={{ fontSize: "0.8rem", color: "#94a3b8" }}>Participating gNB Clients</span>
-                <div style={{ fontSize: "1.8rem", fontWeight: "700", marginTop: "8px", color: "#38bdf8" }}>
-                  {federatedData.num_clients || 3} gNB Cells
-                </div>
-                <span style={{ fontSize: "0.75rem", color: "#64748b" }}>gNB-1, gNB-2, gNB-3 local cell data isolated; zero raw flows shared</span>
-              </div>
-              <div style={{ background: "#0f172a", border: "1px solid #1e293b", borderRadius: "12px", padding: "20px" }}>
-                <span style={{ fontSize: "0.8rem", color: "#94a3b8" }}>Aggregation Algorithm</span>
-                <div style={{ fontSize: "1.8rem", fontWeight: "700", marginTop: "8px", color: "#10b981" }}>FedAvg</div>
-                <span style={{ fontSize: "0.75rem", color: "#10b981" }}>Weighted federated model averaging</span>
-              </div>
-              <div style={{ background: "#0f172a", border: "1px solid #1e293b", borderRadius: "12px", padding: "20px" }}>
-                <span style={{ fontSize: "0.8rem", color: "#94a3b8" }}>Per-Round Bandwidth</span>
-                <div style={{ fontSize: "1.8rem", fontWeight: "700", marginTop: "8px", color: "#f59e0b" }}>{federatedData.bandwidth_per_round_mb} MB</div>
-                <span style={{ fontSize: "0.75rem", color: "#f59e0b" }}>Total parameters: {federatedData.total_parameters.toLocaleString()}</span>
-              </div>
-            </div>
-
-            <div style={{ background: "#0f172a", border: "1px solid #1e293b", borderRadius: "12px", padding: "24px" }}>
-              <h3 style={{ fontSize: "1.1rem", fontWeight: "600", margin: "0 0 16px 0" }}>Federated Communication Rounds</h3>
-              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.85rem" }}>
-                <thead>
-                  <tr style={{ borderBottom: "1px solid #1e293b", color: "#64748b", textAlign: "left" }}>
-                    <th style={{ padding: "10px" }}>Round</th>
-                    <th style={{ padding: "10px" }}>Clients</th>
-                    <th style={{ padding: "10px" }}>Method</th>
-                    <th style={{ padding: "10px" }}>Global Accuracy</th>
-                    <th style={{ padding: "10px" }}>Global Macro F1</th>
-                    <th style={{ padding: "10px" }}>Overhead (MB)</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {federatedData.rounds_summary?.map(r => (
-                    <tr key={r.round} style={{ borderBottom: "1px solid #1e293b" }}>
-                      <td style={{ padding: "10px", fontWeight: "600" }}>Round {r.round}</td>
-                      <td style={{ padding: "10px" }}>{r.participating_clients.join(", ")}</td>
-                      <td style={{ padding: "10px" }}>{r.aggregation_method}</td>
-                      <td style={{ padding: "10px" }}>{r.global_accuracy}%</td>
-                      <td style={{ padding: "10px", color: "#38bdf8", fontWeight: "600" }}>{r.global_macro_f1}%</td>
-                      <td style={{ padding: "10px" }}>{r.communication_overhead_mb} MB</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-        {/* ========================================================
-            PAGE: MODEL BENCHMARK
-        ======================================================== */}
-        {page === "model" && (
-          <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
-            <div style={{ background: "#0f172a", border: "1px solid #1e293b", borderRadius: "12px", padding: "24px" }}>
-              <h3 style={{ fontSize: "1.1rem", fontWeight: "600", margin: "0 0 16px 0" }}>Baseline Binary vs Multiclass HTSTCL-GNN Benchmark</h3>
-              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.85rem" }}>
-                <thead>
-                  <tr style={{ borderBottom: "1px solid #1e293b", color: "#64748b", textAlign: "left" }}>
-                    <th style={{ padding: "10px" }}>Evaluation Paradigm</th>
-                    <th style={{ padding: "10px" }}>Architecture</th>
-                    <th style={{ padding: "10px" }}>Classes</th>
-                    <th style={{ padding: "10px" }}>Test Accuracy</th>
-                    <th style={{ padding: "10px" }}>Precision</th>
-                    <th style={{ padding: "10px" }}>Recall</th>
-                    <th style={{ padding: "10px" }}>F1-Score</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr style={{ borderBottom: "1px solid #1e293b" }}>
-                    <td style={{ padding: "12px 10px", fontWeight: "600" }}>Original Binary Baseline</td>
-                    <td style={{ padding: "12px 10px" }}>HTSTCL-GNN (Single Head)</td>
-                    <td style={{ padding: "12px 10px" }}>2 (Benign / Malicious)</td>
-                    <td style={{ padding: "12px 10px" }}>98.41%</td>
-                    <td style={{ padding: "12px 10px" }}>98.83%</td>
-                    <td style={{ padding: "12px 10px" }}>98.66%</td>
-                    <td style={{ padding: "12px 10px" }}>98.75%</td>
-                  </tr>
-                  <tr style={{ borderBottom: "1px solid #1e293b", background: "rgba(56, 189, 248, 0.05)" }}>
-                    <td style={{ padding: "12px 10px", fontWeight: "600", color: "#38bdf8" }}>Upgraded Multiclass Model</td>
-                    <td style={{ padding: "12px 10px", color: "#38bdf8" }}>HTSTCL-GNN (Dual Head)</td>
-                    <td style={{ padding: "12px 10px", color: "#38bdf8" }}>9 Genuine 5G-NIDD Classes</td>
-                    <td style={{ padding: "12px 10px", fontWeight: "700", color: "#10b981" }}>98.12%</td>
-                    <td style={{ padding: "12px 10px", fontWeight: "700", color: "#10b981" }}>99.00%</td>
-                    <td style={{ padding: "12px 10px", fontWeight: "700", color: "#10b981" }}>98.68%</td>
-                    <td style={{ padding: "12px 10px", fontWeight: "700", color: "#10b981" }}>98.83%</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-        {/* ========================================================
-            PAGE: REPORTS & EXPORT
-        ======================================================== */}
-        {page === "reports" && (
-          <div style={{ background: "#0f172a", border: "1px solid #1e293b", borderRadius: "12px", padding: "24px" }}>
-            <h3 style={{ fontSize: "1.1rem", fontWeight: "600", margin: "0 0 16px 0" }}>Export Audit & Verification Reports</h3>
-            <p style={{ fontSize: "0.85rem", color: "#94a3b8", marginBottom: "20px" }}>
-              Download machine-readable CSVs, Markdown audit reports, and confusion matrices generated by the evaluation engine.
-            </p>
-
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "16px" }}>
-              {[
-                { title: "Multiclass Metrics (CSV)", file: "reports/multiclass_metrics.csv", desc: "Per-class precision, recall, F1, and support" },
-                { title: "Classification Report (TXT)", file: "reports/multiclass_classification_report.txt", desc: "Detailed summary report on 7,296 test sequences" },
-                { title: "Multiclass Confusion Matrix (PNG)", file: "reports/confusion_matrix_multiclass.png", desc: "9x9 confusion matrix visualization" },
-                { title: "Dataset Label Audit (CSV)", file: "reports/dataset_label_audit.csv", desc: "Label verification and class mapping" },
-                { title: "Feature Schema 91 (CSV)", file: "reports/feature_schema_91.csv", desc: "Complete 91-feature specification" },
-                { title: "Simulation Mapping (CSV)", file: "reports/simulation_feature_mapping.csv", desc: "MATLAB-to-NIDD feature contract" }
-              ].map(rep => (
-                <div key={rep.title} style={{ background: "#1e293b", padding: "16px", borderRadius: "8px", border: "1px solid #334155" }}>
-                  <div style={{ fontWeight: "600", color: "#f8fafc", marginBottom: "4px" }}>{rep.title}</div>
-                  <div style={{ fontSize: "0.8rem", color: "#94a3b8", marginBottom: "12px" }}>{rep.desc}</div>
-                  <span style={{ fontSize: "0.75rem", color: "#38bdf8", fontFamily: "monospace" }}>{rep.file}</span>
-                </div>
-              ))}
             </div>
           </div>
         )}

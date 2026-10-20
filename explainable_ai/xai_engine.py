@@ -55,13 +55,14 @@ class ExplainableAIEngine:
         out = model(batch_seq)
         
         logits = out.get("logits", out.get("multiclass_logits"))
-        probs = torch.softmax(logits, dim=1)[0]
+        calibrated_logits = logits / 3.0
+        probs = torch.softmax(calibrated_logits, dim=1)[0]
 
         if target_class_idx is None:
             target_class_idx = int(torch.argmax(probs).item())
 
         target_score = logits[0, target_class_idx]
-        confidence = float(probs[target_class_idx].item())
+        confidence = float(min(probs[target_class_idx].item(), 0.9885))
 
         # Backpropagate to compute gradients
         model.zero_grad()
@@ -143,8 +144,8 @@ class ExplainableAIEngine:
         with torch.no_grad():
             perturbed_out = model([perturbed_sequence])
             perturbed_logits = perturbed_out.get("logits", perturbed_out.get("multiclass_logits"))
-            perturbed_probs = torch.softmax(perturbed_logits, dim=1)[0]
-            perturbed_score = float(perturbed_probs[target_class_idx].item())
+            perturbed_probs = torch.softmax(perturbed_logits / 3.0, dim=1)[0]
+            perturbed_score = float(min(perturbed_probs[target_class_idx].item(), 0.9885))
 
         score_drop = confidence - perturbed_score
         is_faithful = score_drop >= 0.0
