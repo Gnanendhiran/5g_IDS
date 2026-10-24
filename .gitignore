@@ -14,6 +14,22 @@ __pycache__/
 # Virtual environments
 .venv/
 venv/
+backend/.venv/
+
+# Node & Frontend
+node_modules/
+frontend/node_modules/
+dist/
+frontend/dist/
+
+# Environment & Credentials
+.env
+.env.local
+*.env
+
+# Logs & Temporary files
+*.log
+logs/
 
 # VS Code
 .vscode/
