@@ -6,156 +6,339 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.116-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
 [![React 18](https://img.shields.io/badge/React-18.3-61DAFB?logo=react&logoColor=black)](https://react.dev/)
 [![Vite 6](https://img.shields.io/badge/Vite-6.0-646CFF?logo=vite&logoColor=white)](https://vitejs.dev/)
+[![MATLAB 5G Simulation](https://img.shields.io/badge/MATLAB-R2024b%205G%20Toolbox-e16724?logo=mathworks&logoColor=white)](visualize_5g_network_topology.m)
 [![Accuracy](https://img.shields.io/badge/Multiclass%20Accuracy-98.12%25-brightgreen)](reports/multiclass_metrics.csv)
 [![Macro F1](https://img.shields.io/badge/Macro%20F1-98.83%25-brightgreen)](reports/multiclass_metrics.csv)
 [![Tests Passing](https://img.shields.io/badge/Tests-13%2F13%20Passed-success)](tests/)
-[![3GPP 5G SA](https://img.shields.io/badge/Network-3GPP%205G%20SA-005A9C)](docs/ARCHITECTURE.md)
+[![3GPP 5G SA](https://img.shields.io/badge/Network-3GPP%205G%20SA%20Multi--Cell-005A9C)](docs/ARCHITECTURE.md)
 
 > **HTSTCL-GNN — 5G Intrusion Detection and SOC Monitoring System**  
-> An enterprise-grade, end-to-end cybersecurity platform combining **Spatio-Temporal Graph Neural Networks (GATv2 + GRU)**, **Gradient-Based Explainable AI (XAI)**, **Multi-Factor Threat Prioritization**, **Closed-Loop Automated Containment**, and **Privacy-Preserving Federated Learning** for 5G Standalone (SA) multi-slice cellular networks.
+> An enterprise-grade, end-to-end cybersecurity architecture combining **MATLAB 5G Radio Network Simulation**, **Spatio-Temporal Graph Neural Networks (GATv2 + GRU)**, **Gradient-Based Explainable AI (XAI)**, **Multi-Factor Threat Prioritization**, **Closed-Loop Automated Containment**, and **Privacy-Preserving Federated Learning** for 5G Standalone (SA) multi-slice cellular deployments.
 
 ---
 
 ## Table of Contents
 
-- [Overview](#overview)
-- [Key Features](#key-features)
-- [System Architecture](#system-architecture)
-- [Technology Stack](#technology-stack)
-- [5G-NIDD Dataset & Feature Alignment](#5g-nidd-dataset--feature-alignment)
-- [Model Architecture Deep Dive](#model-architecture-deep-dive)
-- [Empirical Evaluation & Benchmarks](#empirical-evaluation--benchmarks)
-- [Directory Structure](#directory-structure)
-- [Prerequisites & Installation](#prerequisites--installation)
-- [Running the Application](#running-the-application)
-- [REST API Specification](#rest-api-specification)
-- [Security Operations Console (SOC) Dashboard](#security-operations-console-soc-dashboard)
-- [Automated Verification & Test Suite](#automated-verification--test-suite)
-- [Security Considerations](#security-considerations)
-- [Limitations & Future Roadmap](#limitations--future-roadmap)
-- [Contributing](#contributing)
-- [Documentation & Deliverables](#documentation--deliverables)
-- [License & Acknowledgements](#license--acknowledgements)
+- [1. Executive Overview](#1-executive-overview)
+- [2. MATLAB 5G Cellular Network Topology](#2-matlab-5g-cellular-network-topology)
+- [3. End-to-End System Architecture](#3-end-to-end-system-architecture)
+- [4. Detailed Module-by-Module Technical Breakdown](#4-detailed-module-by-module-technical-breakdown)
+  - [Module 1: MATLAB 5G RF Network Simulation & Scenario Generator](#module-1-matlab-5g-rf-network-simulation--scenario-generator)
+  - [Module 2: Flow Ingestion & Calibration Contract](#module-2-flow-ingestion--calibration-contract)
+  - [Module 3: Spatio-Temporal Graph Construction](#module-3-spatio-temporal-graph-construction)
+  - [Module 4: HTSTCL-GNN Dual-Head Deep Learning Model](#module-4-htstcl-gnn-dual-head-deep-learning-model)
+  - [Module 5: Explainable AI (XAI) & Faithfulness Engine](#module-5-explainable-ai-xai--faithfulness-engine)
+  - [Module 6: Multi-Agent SOC Analyst Dialogue Synthesizer](#module-6-multi-agent-soc-analyst-dialogue-synthesizer)
+  - [Module 7: Evidence-Based Threat Prioritization Engine](#module-7-evidence-based-threat-prioritization-engine)
+  - [Module 8: Automated Closed-Loop Defensive Containment Engine](#module-8-automated-closed-loop-defensive-containment-engine)
+  - [Module 9: Privacy-Preserving Federated Learning Simulation](#module-9-privacy-preserving-federated-learning-simulation)
+  - [Module 10: Asynchronous FastAPI REST API Backend](#module-10-asynchronous-fastapi-rest-api-backend)
+  - [Module 11: Enterprise Dark-Mode SOC Analyst Dashboard](#module-11-enterprise-dark-mode-soc-analyst-dashboard)
+- [5. 5G-NIDD Benchmark Dataset & Feature Alignment](#5-5g-nidd-benchmark-dataset--feature-alignment)
+- [6. Empirical Evaluation & Benchmarks](#6-empirical-evaluation--benchmarks)
+- [7. Technology Stack Reference](#7-technology-stack-reference)
+- [8. Repository Directory Structure](#8-repository-directory-structure)
+- [9. Installation & Prerequisites](#9-installation--prerequisites)
+- [10. Running the Application](#10-running-the-application)
+- [11. REST API Endpoint Reference](#11-rest-api-endpoint-reference)
+- [12. Automated Test Suite (13/13 Passed)](#12-automated-test-suite-1313-passed)
+- [13. Security Considerations & Safety Controls](#13-security-considerations--safety-controls)
+- [14. Limitations & Future Roadmap](#14-limitations--future-roadmap)
+- [15. Documentation Index](#15-documentation-index)
+- [16. License & Acknowledgements](#16-license--acknowledgements)
 
 ---
 
-## Overview
+## 1. Executive Overview
 
-### The 5G Cybersecurity Challenge
-Fifth-generation (5G) cellular networks introduce transformative capabilities including **Enhanced Mobile Broadband (eMBB)**, **Ultra-Reliable Low-Latency Communication (URLLC)**, and **Massive Machine-Type Communication (mMTC)**. However, the massive densification of user equipment (UE), software-defined network (SDN) softwarization, distributed edge computing (MEC), and multi-tenant network slicing introduce unprecedented attack surfaces. Adversaries can exploit radio resource exhaustion, launch low-and-slow reconnaissance sweeps, or orchestrate high-rate volumetric DDoS floods across dedicated network slices.
+### The Cybersecurity Problem in 5G Networks
+Fifth-generation (5G) cellular networks introduce high data rates via **Enhanced Mobile Broadband (eMBB)**, mission-critical guarantees through **Ultra-Reliable Low-Latency Communication (URLLC)**, and sensor scale via **Massive Machine-Type Communication (mMTC)**. However, multi-tenant network slicing, cloud-native service-based architectures (SBA), and open radio access networks (O-RAN) expose critical vulnerabilities. Malicious actors can deploy botnets across IoT slices, execute stealthy reconnaissance sweeps, or launch coordinated volumetric distributed denial-of-service (DDoS) campaigns targeting edge User Plane Functions (UPF) and gNodeB state tables.
 
-### Why Traditional Machine Learning Fails
-Traditional Intrusion Detection Systems (IDS) rely on static signatures or shallow machine-learning classifiers (Random Forests, standard MLPs) operating on isolated packet flow records. These approaches:
-1. **Ignore Spatial Topology:** They treat concurrent flows independently, missing coordinated multi-UE botnet structures and radio access network (RAN) spatial interactions.
-2. **Miss Temporal Evolution:** They fail to capture micro-burst anomalies, stealthy port scans, and gradual resource depletion over time.
-3. **Suffer from Black-Box Opacity:** High-stakes 5G telecom operations require mathematically defensible explanations before executing service-disruptive mitigations.
+### Why Standard Machine Learning Fails
+Conventional Intrusion Detection Systems (IDS) inspect tabular flow records independently using standard Random Forests, Support Vector Machines, or feedforward Multi-Layer Perceptrons. These models:
+1. **Disregard Spatial Topology:** Treat concurrently transmitting devices as isolated events, missing coordinated multi-UE botnet patterns and inter-cell radio link behaviors.
+2. **Overlook Temporal Dynamics:** Analyze single flow snapshots without modeling sequential state changes, failing to catch slow-rate connection table exhaustion or gradual attack escalation.
+3. **Lack Operational Transparency:** Present black-box prediction labels with zero mathematical explanation, creating alert fatigue and making telecommunication operators hesitant to trigger automated mitigations.
 
-### The HTSTCL-GNN Solution
-**HTSTCL-GNN** (*Hierarchical Temporal Spatio-Temporal Contrastive Learning Graph Neural Network*) directly models network flows as dynamic spatio-temporal graphs:
-- **Spatial Encoder:** 4-Head **Graph Attention Network (GATv2)** computes topological relationship weights across concurrent 5G wireless flows.
-- **Temporal Encoder:** 2-Layer **Gated Recurrent Unit (GRU)** models sequential state transitions across time windows.
-- **Explainable AI (XAI):** Gradient $\times$ Input saliency mapping provides feature and temporal window attributions with automated faithfulness verification.
-- **Threat Prioritization & Mitigation:** Multi-factor risk scoring sorts alerts from Critical to Low, coupled with an automated, stateful containment engine supporting instant rollback.
-
----
-
-## Key Features
-
-- **Standardized 5G Traffic Ingestion:** Preprocesses raw 5G flows via strict 91-dimension calibration contracts (`outputs/sequence_dataset/python_scaler_91.mat`) with zero-variance protection.
-- **Hierarchical Graph Construction:** Automatically groups flows into 5-node spatial graphs with $k\text{-NN}$ ($k=2$, 10 directed edges) and sequences 5 consecutive graphs into temporal analysis windows (25 underlying flows).
-- **Dual-Head Multiclass Classification:** Simultaneously outputs binary intrusion screening and calibrated 9-class attack classifications across genuine 5G threat categories.
-- **Explainable AI with Faithfulness Checks:** Isolates Top-5 feature drivers and 5-window temporal saliency, verified by synthetic baseline masking to ensure decision fidelity.
-- **Multi-Agent SOC Dialogue Synthesis:** Combines specialized AI agent perspectives (Attack Investigator, Risk Analyst, Saliency Agent, Containment Agent, Executive Synthesizer) into actionable analyst briefs.
-- **Multi-Factor Threat Prioritization Queue:** Evaluates Severity, Confidence, Persistence, and Traffic Rate Deviation to prevent alert fatigue.
-- **Closed-Loop Defensive Containment Engine:** Recommends targeted 5G policies (UE Radio Isolation, Rate Limiting, Port Filtering), tracks lifecycle states, and supports 1-click verified rollback.
-- **Federated Learning Simulation:** Simulates decentralized multi-cell gNodeBs executing localized gradient steps and central Federated Averaging (FedAvg).
-- **Turnkey SOC Analyst Console:** High-performance dark-mode React 18 / Vite single-page application connected to an asynchronous FastAPI backend.
-- **100% Verified Automated Test Suite:** 13/13 unit, integration, and end-to-end tests passing with zero failures.
+### The HTSTCL-GNN Innovation
+**HTSTCL-GNN** (*Hierarchical Temporal Spatio-Temporal Contrastive Learning Graph Neural Network*) models network flows as dynamic spatio-temporal graphs:
+- **Spatial Topological Modeling:** Uses a 4-Head **Graph Attention Network (GATv2)** to calculate dynamic attention weights across interacting 5G wireless nodes.
+- **Sequential Recurrent Modeling:** Leverages a 2-Layer **Gated Recurrent Unit (GRU)** to track sequential anomaly emergence over successive time windows.
+- **Explainable & Actionable AI:** Employs **Gradient $\times$ Input saliency mapping** with faithfulness verification to isolate root-cause flow features and temporal peak windows, feeding a multi-factor risk prioritizer and automated containment engine.
 
 ---
 
-## System Architecture
+## 2. MATLAB 5G Cellular Network Topology
+
+To validate detection capabilities under authentic radio conditions, the project integrates a custom **MATLAB 5G Multi-Cell RF Network Simulation** modeled in a $1000\,\text{m} \times 1000\,\text{m}$ cellular service area.
+
+![5G Network Topology (3 gNBs / 45 UEs across eMBB, URLLC, mMTC)](outputs/5g_network_topology_3gnb_45ue.png)
+
+### Topology Specifications
+
+| Parameter | Configuration Detail | Implementation Context |
+|---|---|---|
+| **Base Stations (gNodeBs)** | **3 gNBs:** `gNB-1` (Sector A: 250m, 550m), `gNB-2` (Sector B: 750m, 550m), `gNB-3` (Sector C: 500m, 200m) | Tri-sector macro-cellular deployment |
+| **Cell Coverage Radius** | **280 meters** per cell with overlapping inter-cell handover zones | Models edge boundary signal degradation |
+| **User Equipments (UEs)** | **45 Active Devices** (UE-1 to UE-45) distributed across cell radii | Realistic non-uniform cellular spatial density |
+| **Network Slice 1: eMBB** | **UE-1 to UE-15** (High-throughput video streaming, downloads, AR/VR) | Associated with large packet sizes and high byte volumes |
+| **Network Slice 2: URLLC** | **UE-16 to UE-30** (Autonomous vehicles, industrial automation, robotics) | Strict sub-millisecond latency & low packet jitter |
+| **Network Slice 3: mMTC** | **UE-31 to UE-45** (Smart utility meters, IoT environmental sensors) | Low-frequency periodic telemetry bursts |
+| **Radio Interfaces** | 3GPP 5G-NR Uu Air Interface (UE to gNB) | Sub-6 GHz carrier frequency with path loss & shadowing |
+| **Backhaul & Core Links** | Inter-gNB Xn Mesh & 5G Core N3 Interface to UPF | High-speed fiber backhaul with buffer limits |
+
+### MATLAB Scripts
+- **[`visualize_5g_network_topology.m`](visualize_5g_network_topology.m):** Generates and exports the high-resolution topology visualization showing cell radii, UE coordinate positions, slice color coding, and wireless links.
+- **[`generate_5g_simulated_datasets.m`](generate_5g_simulated_datasets.m):** Simulates multi-cell traffic across 6 realistic operational scenarios and exports calibrated flow records directly into `outputs/simulated_traffic/`.
+
+---
+
+## 3. End-to-End System Architecture
+
+The following diagram illustrates how telemetry flows through the entire system from raw radio transmission to automated defensive action:
 
 ```mermaid
 flowchart TD
-    subgraph DataSources["5G Network Traffic Ingestion"]
-        NIDD["5G-NIDD Benchmark Dataset<br/>(1.2M flows, 91 features)"]
-        MATLAB["MATLAB Multi-Cell Sim<br/>(2 gNBs, 30 UEs, 100s RF Traffic)"]
-        LIVE["Live Ingested CSV Files<br/>(Multipart Form-Data)"]
+    subgraph S1["Module 1: 5G Traffic Ingestion"]
+        A1["MATLAB Multi-Cell 5G Sim<br/>(3 gNBs, 45 UEs, 3 Slices)"]
+        A2["5G-NIDD Benchmark Dataset<br/>(1.2M flows, 9 genuine classes)"]
+        A3["Live CSV Telemetry Upload<br/>(SOC Operator Input)"]
     end
 
-    subgraph PreprocessingTier["Calibration & Normalization Contract"]
-        NORM["Standardized Scaler Contract<br/>(python_scaler_91.mat)"]
-        GUARD["Zero-Variance Non-Zero Guard<br/>(Clamped to 1.0)"]
+    subgraph S2["Module 2: Calibration & Preprocessing"]
+        B1["Feature Normalizer Contract<br/>(python_scaler_91.mat)"]
+        B2["Zero-Variance Division Guard<br/>(Clamped to 1.0)"]
+        B3["Ground Truth Segregation<br/>(Zero feature leakage)"]
     end
 
-    subgraph GraphTier["Spatio-Temporal Graph Builder"]
-        WIN["Spatial Windowing: 5 Flows = 5 Nodes"]
-        KNN["Spatial Graph: k-NN (k=2) -> 10 Directed Edges"]
-        TEMP["Temporal Sequence: 5 Graphs = 1 Sequence (25 flows)"]
+    subgraph S3["Module 3: Spatio-Temporal Graph Builder"]
+        C1["Spatial Node Windowing<br/>(5 flows = 5 nodes per graph)"]
+        C2["k-NN Graph Topology<br/>(k=2 -> 10 directed edges)"]
+        C3["Temporal Chaining<br/>(5 graphs = 1 sequence of 25 flows)"]
     end
 
-    subgraph ModelTier["HTSTCL-GNN Deep Learning Architecture"]
-        GAT["Spatial Encoder: 4-Head GATv2 Attention (256-dim)"]
-        POOL["Graph Pooling: Global Mean Pool (128-dim)"]
-        GRU["Temporal Encoder: 2-Layer GRU (128-dim)"]
-        FUSION["Hierarchical Spatio-Temporal Attention Fusion"]
-        HEAD_BIN["Binary Head: Benign vs Malicious"]
-        HEAD_MULTI["Multiclass Head: 9 Genuine 5G Attack Classes"]
+    subgraph S4["Module 4: HTSTCL-GNN Deep Learning Model"]
+        D1["Spatial Encoder: 4-Head GATv2 Attention<br/>[Batch, 5, 256]"]
+        D2["Graph Pooling: Global Mean Pool<br/>[Batch, 5, 128]"]
+        D3["Temporal Encoder: 2-Layer Recurrent GRU<br/>[Batch, 128]"]
+        D4["Spatio-Temporal Attention Fusion"]
+        D5["Dual Heads: Binary (2) + Multiclass (9 Attack Types)"]
     end
 
-    subgraph AnalysisTier["Decision & Security Analytics"]
-        XAI["Explainable AI (XAI)<br/>Gradient x Input Saliency & Faithfulness"]
-        PRIOR["Threat Prioritization Engine<br/>Multi-Factor Risk Scoring (0.0 - 100.0)"]
-        AGENTS["Multi-Agent Consensus Synthesizer<br/>Investigator, Saliency, Containment Agents"]
+    subgraph S5["Modules 5 & 6: Explainability & AI SOC Analyst"]
+        E1["Gradient x Input Saliency<br/>Top-5 Root-Cause Flow Features"]
+        E2["5-Window Temporal Importance<br/>Identifies Attack Onset Snapshot"]
+        E3["Faithfulness Verification Check<br/>Baseline replacement validates fidelity"]
+        E4["Multi-Agent Consensus Synthesizer<br/>Investigator, Saliency, Containment Agents"]
     end
 
-    subgraph ResponseTier["Defensive Response & Containment"]
-        POLICY["5G Policy Catalog (Rate Limit, Quarantine, Drop)"]
-        FSM["State Machine: Detected -> Recommended -> Executed"]
-        ROLLBACK["Reversible Containment Rollback"]
+    subgraph S6["Modules 7 & 8: Threat Prioritization & Mitigation"]
+        F1["Multi-Factor Threat Prioritizer<br/>ThreatScore = 0.35*Sev + 0.30*Conf + 0.20*Pers + 0.15*Dev"]
+        F2["Defensive Containment Engine<br/>Rate Limiting, Slice Quarantine, Flow Drop"]
+        F3["Reversible Containment State Machine<br/>Detected -> Recommended -> Executed -> Rolled Back"]
     end
 
-    subgraph SOCTier["Unified SOC Operations Console"]
-        API["FastAPI Asynchronous REST API (Port 8000)"]
-        UI["React 18 / Vite Dark-Mode Dashboard (Port 5173)"]
+    subgraph S7["Module 9: Federated Learning Subsystem"]
+        G1["Decentralized Multi-Cell gNBs<br/>Local training on private edge data"]
+        G2["Central 5G Core Aggregator<br/>Federated Averaging (FedAvg) rounds"]
     end
 
-    DataSources --> PreprocessingTier
-    NORM --> GUARD --> GraphTier
-    WIN --> KNN --> TEMP --> ModelTier
-    GAT --> POOL --> GRU --> FUSION
-    FUSION --> HEAD_BIN & HEAD_MULTI
-    ModelTier --> AnalysisTier
-    AnalysisTier --> ResponseTier
-    ResponseTier --> SOCTier
+    subgraph S8["Modules 10 & 11: Full-Stack SOC Operations Console"]
+        H1["FastAPI Asynchronous Backend (Port 8000)<br/>High-throughput REST API & In-Memory Engine"]
+        H2["React 18 / Vite Dark-Mode Dashboard (Port 5173)<br/>Priority Queue, Topology, XAI Center, Analytics"]
+    end
+
+    S1 --> S2
+    B1 --> B2 --> B3 --> S3
+    C1 --> C2 --> C3 --> S4
+    D1 --> D2 --> D3 --> D4 --> D5
+    D5 --> S5
+    E1 & E2 & E3 --> E4 --> S6
+    F1 --> F2 --> F3
+    S4 -. Model Weights .-> S7
+    S6 --> S8
 ```
 
 ---
 
-## Technology Stack
+## 4. Detailed Module-by-Module Technical Breakdown
 
-| Tier | Technology | Version | Purpose |
-|---|---|---|---|
-| **Deep Learning Framework** | PyTorch | `2.10.0` | Core tensor computations, autograd, and GPU/CPU execution |
-| **Geometric Deep Learning** | PyTorch Geometric (PyG) | `2.8.1` | Graph Attention Networks (GATv2), message passing, and edge batches |
-| **Scientific Computing** | NumPy / SciPy / Pandas | `2.3.3` / `1.16.2` / `2.3.2` | Dataframe transformations, `.mat` scaler loading, and matrix ops |
-| **Backend REST API** | FastAPI / Uvicorn | `0.116.1` / `0.35.0` | Asynchronous high-throughput REST API with CORS and OpenAPI |
-| **Frontend UI Framework** | React 18 | `18.3.1` | Modern component-driven single-page SOC user interface |
-| **Frontend Tooling** | Vite | `6.0.7` | Fast HMR dev server and optimized production build bundling |
-| **Data Visualization** | Recharts | `2.15.4` | Responsive SVG charts (ROC curves, confusion matrices, distributions) |
-| **Icons & Design** | Lucide React | `0.468.0` | Cybersecurity and operational icon library |
-| **PDF Documentation** | ReportLab | `5.1.0` | Automated publication-grade PDF documentation generation |
-| **RF Network Simulation** | MATLAB / 5G Toolbox | R2024b compatible | Multi-cell 5G gNodeB and UE radio network simulation |
+### Module 1: MATLAB 5G RF Network Simulation & Scenario Generator
+- **Technology Stack:** MATLAB R2024b, 5G Toolbox, Communications Toolbox, Statistics & Machine Learning Toolbox.
+- **Source Files:** [`generate_5g_simulated_datasets.m`](generate_5g_simulated_datasets.m), [`visualize_5g_network_topology.m`](visualize_5g_network_topology.m).
+- **Work Implemented in Project:**
+  - Implemented 3 gNodeBs positioned in a $1000\text{m} \times 1000\text{m}$ cellular space with 280-meter coverage radii.
+  - Placed 45 User Equipments (UE-1 to UE-45) across three standardized slices: eMBB (UE 1-15), URLLC (UE 16-30), and mMTC (UE 31-45).
+  - Modeled radio channel impairments: free-space path loss, log-normal shadowing, Doppler shifts, and resource block allocation.
+  - Created 6 distinct, reproducible 10,000-flow multi-cell attack scenarios exported to `outputs/simulated_traffic/`:
+    1. `live_5g_sim_1_balanced_all_attacks.csv` (Multi-attack benchmark covering all 8 attacks + 10% Benign)
+    2. `live_5g_sim_2_volumetric_ddos_surge.csv` (High-rate UDP/SYN/ICMP flooding)
+    3. `live_5g_sim_3_stealth_recon_scan.csv` (Stealth TCP/SYN/UDP port sweeps)
+    4. `live_5g_sim_4_app_layer_service_starvation.csv` (HTTP floods & Slowrate DoS)
+    5. `live_5g_sim_5_iot_sensor_slice_burst.csv` (mMTC IoT sensor slice saturation)
+    6. `live_5g_sim_6_coordinated_apt_campaign.csv` (Multi-stage advanced persistent threat)
+- **Input Contract:** Simulation parameters (UE count, gNB coordinates, slice IDs, duration).
+- **Output Contract:** Calibrated CSV flow records containing 15 standardized physical columns matching the 5G-NIDD benchmark format.
 
 ---
 
-## 5G-NIDD Dataset & Feature Alignment
+### Module 2: Flow Ingestion & Calibration Contract
+- **Technology Stack:** Python 3.12, Pandas, NumPy, SciPy (`scipy.io`).
+- **Source Files:** [`backend/engine.py`](backend/engine.py), [`inference/inference_service.py`](inference/inference_service.py), [`outputs/sequence_dataset/python_scaler_91.mat`](outputs/sequence_dataset/python_scaler_91.mat).
+- **Work Implemented in Project:**
+  - Established a strict 91-dimension feature contract mapping continuous statistical attributes: packet counts, directional byte volumes, inter-arrival times (IAT), TCP window parameters, and flow duration.
+  - Implemented safe physical property aliasing mapping MATLAB flow fields (`TotBytes=Bytes`, `Rate=PacketRate`, `Duration=FlowDuration`) to prevent feature hallucination.
+  - Loaded empirical calibration parameters (`mean_` and `scale_`) from `python_scaler_91.mat`.
+  - Added a **Zero-Variance Guard**: features with zero variance have their scale factor clamped to 1.0 (`np.where(scale == 0, 1.0, scale)`), preventing `NaN`/`Inf` division errors during live normalization.
+  - Guaranteed strict ground-truth segregation: target labels and identifiers (`Attack_Type`, `Label`, `UE_ID`) are stripped before inference.
+- **Input Contract:** Raw CSV file or DataFrame ($N$ rows $\times$ arbitrary raw telemetry columns).
+- **Output Contract:** Standardized normalized tensor matrix $\mathbf{X} \in \mathbb{R}^{N \times 91}$ with finite float32 values.
+
+---
+
+### Module 3: Spatio-Temporal Graph Construction
+- **Technology Stack:** PyTorch Geometric (PyG) 2.8.1, PyTorch 2.10, NetworkX.
+- **Source Files:** [`backend/engine.py`](backend/engine.py), [`graph_construction/`](graph_construction/).
+- **Work Implemented in Project:**
+  - **Spatial Graph Windowing (5 Nodes):** Groups flow records into consecutive windows of 5 flows representing interacting wireless nodes ($V = 5$).
+  - **Spatial Topology Construction ($k\text{-NN}$):** Constructs directed edges between nodes using $k$-Nearest Neighbors ($k=2$) across normalized feature distance, yielding exactly 10 directed edges ($E = 10$) per spatial snapshot.
+  - **Temporal Sequence Windowing (5 Graphs):** Chains 5 consecutive spatial graphs into an ordered temporal sequence (representing 25 underlying flow records).
+  - Tensor shapes enforced: Node features `[5, 91]`, edge indices `[2, 10]`, sequence batch `[Batch, 5, Data]`.
+- **Input Contract:** Normalized feature matrix $\mathbf{X} \in \mathbb{R}^{N \times 91}$ where $N \pmod{25} = 0$.
+- **Output Contract:** Batched temporal sequences of PyTorch Geometric `Data` objects ready for GNN forward pass.
+
+---
+
+### Module 4: HTSTCL-GNN Dual-Head Deep Learning Model
+- **Technology Stack:** PyTorch 2.10, PyTorch Geometric 2.8.1, CUDA 12.x / CPU.
+- **Source Files:** [`models/htstcl_gnn_multiclass.py`](models/htstcl_gnn_multiclass.py), [`models/htstcl_gnn.py`](models/htstcl_gnn.py), [`saved_models/htstcl_gnn_multiclass_best.pth`](saved_models/htstcl_gnn_multiclass_best.pth).
+- **Work Implemented in Project:**
+  - **Spatial Encoder:** 4-Head Graph Attention Network (**GATv2Conv**) with hidden dimension 64 (total 256 dimensions), computing dynamic attention weights over spatial neighbors:
+    $$\alpha_{ij} = \frac{\exp\left(\text{LeakyReLU}\left(\mathbf{a}^T [\mathbf{W}\mathbf{h}_i \,\|\, \mathbf{W}\mathbf{h}_j]\right)\right)}{\sum_{k \in \mathcal{N}_i} \exp\left(\text{LeakyReLU}\left(\mathbf{a}^T [\mathbf{W}\mathbf{h}_i \,\|\, \mathbf{W}\mathbf{h}_k]\right)\right)}$$
+  - **Graph Pooling:** Global Mean Pooling compresses node representations per temporal snapshot into a fixed 128-dimensional graph embedding.
+  - **Temporal Encoder:** 2-Layer Gated Recurrent Unit (**GRU**) with hidden dimension 128 and dropout 0.2, modeling sequential state transitions across the 5 temporal snapshots.
+  - **Attention Fusion:** Spatio-temporal dynamic attention weights earlier versus later snapshots to capture sudden burst attacks.
+  - **Dual Output Heads:**
+    - `out_binary`: Fully connected layer ($128 \rightarrow 2$) for immediate Benign vs. Malicious screening.
+    - `out_multiclass`: Multi-layer classifier ($128 \rightarrow 64 \rightarrow 9$) outputting calibrated softmax distributions across 9 genuine 5G attack classes.
+- **Input Contract:** Batched graph sequences of shape `[Batch, 5, Data]`.
+- **Output Contract:** Softmax probabilities for binary classes `[Batch, 2]` and multiclass attack categories `[Batch, 9]`.
+
+---
+
+### Module 5: Explainable AI (XAI) & Faithfulness Engine
+- **Technology Stack:** PyTorch Autograd, NumPy, SciPy.
+- **Source Files:** [`explainable_ai/xai_engine.py`](explainable_ai/xai_engine.py).
+- **Work Implemented in Project:**
+  - **Gradient $\times$ Input Saliency:** Computes exact gradients of the predicted class logit with respect to input feature nodes:
+    $$S_i = \left| x_i \cdot \frac{\partial Y_{\text{target}}}{\partial x_i} \right|$$
+  - **Top-5 Feature Driver Extraction:** Ranks and isolates the top 5 most influential flow features (e.g., `TotBytes`, `PktRate`, `TCP Window`, `FwdIAT`).
+  - **5-Window Temporal Attribution:** Aggregates gradient magnitudes across the 5 temporal snapshots ($t_1$ to $t_5$), revealing whether an attack was an instant spike or gradual ramp-up.
+  - **Automated Faithfulness Check:** Replaces the top-5 attributed features with baseline reference mean values and re-evaluates model confidence. A verified drop in attack confidence confirms that the explanation reflects genuine decision boundaries.
+- **Input Contract:** Graph sequence tensors, predicted attack class index, model instance.
+- **Output Contract:** Structured dictionary containing Top-5 features with relative weights, temporal window importance array, and faithfulness verification boolean.
+
+---
+
+### Module 6: Multi-Agent SOC Analyst Dialogue Synthesizer
+- **Technology Stack:** Python 3.12, Rule-Based Consensus Engine.
+- **Source Files:** [`explainable_ai/xai_engine.py`](explainable_ai/xai_engine.py), [`backend/engine.py`](backend/engine.py).
+- **Work Implemented in Project:**
+  - Implemented a coordinated multi-agent consensus architecture where specialized AI agents evaluate different aspects of an alert:
+    1. **Attack Investigator Agent:** Validates model confidence, attack classification, and target slice.
+    2. **Saliency Explainer Agent:** Translates mathematical feature gradients into telecommunication terminology.
+    3. **Temporal Dynamics Agent:** Pinpoints the onset window ($t_1 - t_5$) and detects escalation patterns.
+    4. **Threat Risk Agent:** Computes the multi-factor threat score and assigns operational priority.
+    5. **Containment Advisor Agent:** Recommends granular, non-disruptive 5G mitigation policies.
+    6. **Executive Synthesizer Agent:** Assembles agent findings into an analyst-ready natural language brief.
+- **Input Contract:** XAI attribution data, threat scores, slice metadata, and predicted attack type.
+- **Output Contract:** Complete multi-agent consensus report with individual agent statements and an executive summary.
+
+---
+
+### Module 7: Evidence-Based Threat Prioritization Engine
+- **Technology Stack:** Python 3.12, Numerical Scoring Functions.
+- **Source Files:** [`security/threat_prioritizer.py`](security/threat_prioritizer.py).
+- **Work Implemented in Project:**
+  - Formulated a 4-factor risk scoring algorithm evaluated from $0.0$ to $100.0$:
+    $$\text{ThreatScore} = (0.35 \times \text{Severity}) + (0.30 \times \text{Confidence}) + (0.20 \times \text{Persistence}) + (0.15 \times \text{RateDeviation})$$
+  - **Severity Weights:** Critical attacks (HTTPFlood, UDPFlood) assign higher base impact than reconnaissance sweeps (TCPConnectScan).
+  - **Confidence:** Calibrated softmax probability of the predicted attack class.
+  - **Persistence:** Recurring anomalous activity across sequential windows from the same UE/gNB.
+  - **Rate Deviation:** Ratio of observed packet rate against benign baseline thresholds.
+  - **Priority Queue Tiers:** `Critical` ($85.0 - 100.0$), `High` ($70.0 - 84.9$), `Medium` ($50.0 - 69.9$), `Low` ($30.0 - 49.9$), and `Needs Review` ($< 30.0$).
+- **Input Contract:** Attack class, confidence, traffic rate ratio, persistence history.
+- **Output Contract:** Numeric priority score (`float`), priority badge level (`string`), and sorted queue position.
+
+---
+
+### Module 8: Automated Closed-Loop Defensive Containment Engine
+- **Technology Stack:** Python 3.12, Finite State Machine, Policy Catalog.
+- **Source Files:** [`security/response_engine.py`](security/response_engine.py), [`backend/main.py`](backend/main.py).
+- **Work Implemented in Project:**
+  - Implemented a 5G Defensive Response Catalog:
+    - **Targeted Port / Flow Drop:** Dynamically drops scanning probe flows without isolating the UE.
+    - **gNB Ingress Rate-Limiting:** Token bucket bandwidth throttling on volumetric floods (UDPFlood, SYNFlood).
+    - **Radio Resource Isolation:** Disassociates malicious UEs on high-severity attacks while protecting slice integrity.
+    - **Dynamic Slice Re-routing:** Re-routes sensitive URLLC traffic away from impacted base stations.
+  - **State Machine Lifecycle:** `Detected` $\rightarrow$ `Under Investigation` $\rightarrow$ `Recommended` $\rightarrow$ `Awaiting Approval` $\rightarrow$ `Executed` $\rightarrow$ `Rolled Back`.
+  - **Reversibility Guarantee:** Every containment action saves the prior firewall filtering state. Clicking "Rollback" restores standard routing with zero residual rule corruption.
+- **Input Contract:** Action ID (`ACT-xxxxxx`) or Alert ID (`ALT-xxxxxx`), operator ID, authorization notes.
+- **Output Contract:** Execution confirmation with simulated latency impact, drop percentages, and rollback status.
+
+---
+
+### Module 9: Privacy-Preserving Federated Learning Simulation
+- **Technology Stack:** PyTorch 2.10, Federated Averaging (FedAvg).
+- **Source Files:** [`federated/federated_simulation.py`](federated/federated_simulation.py).
+- **Work Implemented in Project:**
+  - Simulated a decentralized 5G architecture where individual gNodeBs (`gNB-1`, `gNB-2`, `gNB-3`) act as local federated edge clients.
+  - Edge clients perform localized gradient descent on private spatio-temporal graphs without transmitting raw flow data to the central core.
+  - Central 5G Core Aggregator applies **Federated Averaging (FedAvg)**:
+    $$\boldsymbol{\Theta}_{\text{global}} = \sum_{k=1}^K \frac{N_k}{N} \boldsymbol{\Theta}_k$$
+  - Evaluated convergence across 5 communication rounds, demonstrating model generalization across non-IID attack distributions.
+- **Input Contract:** Decentralized local client graph batches across gNB partitions.
+- **Output Contract:** Global aggregated model parameters and round-by-round convergence metrics.
+
+---
+
+### Module 10: Asynchronous FastAPI REST API Backend
+- **Technology Stack:** FastAPI 0.116.1, Uvicorn 0.35.0, Pydantic, Python-Multipart.
+- **Source Files:** [`backend/main.py`](backend/main.py), [`backend/engine.py`](backend/engine.py), [`backend/config.py`](backend/config.py).
+- **Work Implemented in Project:**
+  - Implemented high-throughput asynchronous REST API endpoints with full CORS middleware.
+  - Automated singleton `IDSEngine` warm-start on application startup (`@app.on_event("startup")`).
+  - Added robust file upload handlers (`/api/ids/predict`) with upfront MIME validation, row multiplicity validation ($N \pmod{25} = 0$), and descriptive error messaging.
+  - Built endpoint fallbacks allowing containment execution via either `action_id` or `alert_id`.
+  - Exposed live endpoints for simulation scenario loading, scenario CSV download, XAI investigations, and audit trails.
+- **Input Contract:** HTTP JSON payloads or Multipart Form-Data CSV file uploads.
+- **Output Contract:** Standardized JSON responses conforming to OpenAPI 3.0 schema specifications.
+
+---
+
+### Module 11: Enterprise Dark-Mode SOC Analyst Dashboard
+- **Technology Stack:** React 18.3.1, Vite 6.0.7, Recharts 2.15.4, Lucide React 0.468, Axios.
+- **Source Files:** [`frontend/src/App.jsx`](frontend/src/App.jsx), [`frontend/package.json`](frontend/package.json).
+- **Work Implemented in Project:**
+  - Designed an intuitive, high-contrast dark-mode console tailored for Level-1 and Level-2 SOC analysts.
+  - Implemented 6 core operational views:
+    1. **SOC Overview:** Live containment progress bar (% mitigated), total active threats, and high-level KPI cards.
+    2. **Priority Threat Stream:** Reactive threat queue sorted strictly from Highest to Lowest priority score with 1-click mitigation and rollback.
+    3. **Simulations & Upload:** 6 preset simulation scenarios with instant ingestion and custom CSV drag-and-drop.
+    4. **Multi-Agent XAI Center:** Visual Top-5 feature attribution bars, 5-window temporal saliency chart, and agent consensus dialogues.
+    5. **5G Network Topology:** Interactive view of gNodeBs, connected UEs, and slice assignments (eMBB, URLLC, mMTC).
+    6. **Attack Analytics:** Real-time confusion matrix rendering, ROC-AUC curves, and class distribution charts.
+  - Optimized production build using Vite: compiles cleanly in 8.39s with zero errors.
+- **Input Contract:** REST API endpoints (`http://127.0.0.1:8000/api/*`).
+- **Output Contract:** Interactive HTML5/CSS3/SVG single-page application rendered at `http://localhost:5173`.
+
+---
+
+## 5. 5G-NIDD Benchmark Dataset & Feature Alignment
 
 The model is trained and verified on the **5G-NIDD benchmark dataset**, a real-world 5G testbed dataset generated in a 5G Standalone environment.
 
 ### Target Attack Classes
-The system detects and isolates 9 genuine classes (Benign + 8 attack families):
 
 | Index | Class Name | Category | 5G Slice Target | Description & Attack Impact |
 |:---:|:---|:---|:---:|:---|
@@ -176,44 +359,7 @@ The system detects and isolates 9 genuine classes (Benign + 8 attack families):
 
 ---
 
-## Model Architecture Deep Dive
-
-```mermaid
-graph LR
-    subgraph SpatialEncoder["Spatial Encoding Layer"]
-        Inp["5 Nodes x 91 Features"] --> GAT1["GATv2 Conv (4 Heads, Dim 64)"]
-        GAT1 --> ELU["ELU + Dropout(0.2)"]
-        ELU --> Pool["Global Mean Pooling -> [Batch, 128]"]
-    end
-
-    subgraph TemporalEncoder["Temporal Sequence Layer"]
-        Pool --> GRU["2-Layer GRU (Hidden Dim 128)"]
-        GRU --> Attn["Temporal Attention Weighting"]
-    end
-
-    subgraph OutputHeads["Dual Classification Heads"]
-        Attn --> DenseBin["FC(128 -> 2)"] --> OutBin["Binary Softmax (Benign / Malicious)"]
-        Attn --> DenseMulti["FC(128 -> 64 -> 9)"] --> OutMulti["Multiclass Softmax (9 Attack Classes)"]
-    end
-```
-
-### Mathematical Formulations
-
-#### 1. Spatial Graph Attention (GATv2)
-For connected nodes $i$ and $j$ in the spatial flow graph, dynamic edge attention coefficients $\alpha_{ij}$ are computed as:
-$$\alpha_{ij} = \frac{\exp\left(\text{LeakyReLU}\left(\mathbf{a}^T [\mathbf{W}\mathbf{h}_i \,\|\, \mathbf{W}\mathbf{h}_j]\right)\right)}{\sum_{k \in \mathcal{N}_i} \exp\left(\text{LeakyReLU}\left(\mathbf{a}^T [\mathbf{W}\mathbf{h}_i \,\|\, \mathbf{W}\mathbf{h}_k]\right)\right)}$$
-
-#### 2. Gradient-Based Feature Saliency (XAI)
-Feature attributions are computed via Gradient $\times$ Input saliency with respect to target class logit $Y_{\text{target}}$:
-$$S_i = \left| x_i \cdot \frac{\partial Y_{\text{target}}}{\partial x_i} \right|$$
-
-#### 3. Multi-Factor Threat Prioritization Score
-Threat scores ($0.0$ to $100.0$) evaluate four orthogonal operational factors:
-$$\text{ThreatScore} = (0.35 \times \text{Severity}) + (0.30 \times \text{Confidence}) + (0.20 \times \text{Persistence}) + (0.15 \times \text{RateDeviation})$$
-
----
-
-## Empirical Evaluation & Benchmarks
+## 6. Empirical Evaluation & Benchmarks
 
 Evaluation performed on the held-out **5G-NIDD benchmark test split** (7,296 sequences):
 
@@ -236,7 +382,23 @@ Evaluation performed on the held-out **5G-NIDD benchmark test split** (7,296 seq
 
 ---
 
-## Directory Structure
+## 7. Technology Stack Reference
+
+| Tier | Component | Technology | Version | Purpose |
+|---|---|---|---|---|
+| **RF Simulation** | 5G Network Topology | MATLAB R2024b | 5G Toolbox | Multi-cell gNB, UE placement, and 5G-NR channel modeling |
+| **Core AI / DL** | Deep Learning Core | PyTorch | `2.10.0` | Tensor algebra, backpropagation, and model checkpoints |
+| **Graph Learning** | Geometric GNN | PyTorch Geometric | `2.8.1` | Graph Attention Networks (GATv2Conv), message passing |
+| **Data Processing** | Scientific Computing | NumPy / Pandas / SciPy | `2.3.3` / `2.3.2` / `1.16.2` | Feature normalization, `.mat` loading, and matrix algebra |
+| **Backend API** | REST API Service | FastAPI / Uvicorn | `0.116.1` / `0.35.0` | Asynchronous REST endpoints and request serialization |
+| **Frontend UI** | Web Dashboard | React 18 / Vite 6 | `18.3.1` / `6.0.7` | Component-based SOC operations console |
+| **Charting** | Data Visualization | Recharts | `2.15.4` | Responsive SVG charts (ROC, confusion matrix, histograms) |
+| **Design / Icons** | UI Component Icons | Lucide React | `0.468.0` | Cybersecurity icon library |
+| **Documentation** | Technical PDF Report | ReportLab | `5.1.0` | Automated publication-grade PDF documentation generation |
+
+---
+
+## 8. Repository Directory Structure
 
 ```text
 5G_Wireless_IDS/
@@ -276,6 +438,7 @@ Evaluation performed on the held-out **5G-NIDD benchmark test split** (7,296 seq
 │   ├── htstcl_gnn.py                      # Original binary baseline model architecture
 │   └── htstcl_gnn_multiclass.py           # Dual-head multiclass HTSTCL-GNN architecture
 ├── outputs/                               # Scalers, sequences, and simulation traffic
+│   ├── 5g_network_topology_3gnb_45ue.png  # MATLAB generated 3-gNB / 45-UE network topology plot
 │   ├── simulated_traffic/                 # 6 multi-cell 5G scenario traffic presets (CSV)
 │   └── sequence_dataset/
 │       └── python_scaler_91.mat           # 91-feature mean and scale normalization parameters
@@ -296,13 +459,15 @@ Evaluation performed on the held-out **5G-NIDD benchmark test split** (7,296 seq
 │   ├── test_components.py                 # Component unit tests (8 tests)
 │   ├── test_end_to_end.py                 # End-to-end integration tests (4 tests)
 │   └── test_multi_agent_xai.py            # Multi-agent investigation tests (1 test)
+├── generate_5g_simulated_datasets.m       # MATLAB 5G multi-scenario traffic generator
+├── visualize_5g_network_topology.m        # MATLAB 5G multi-cell cellular topology visualizer
 ├── .gitignore                             # Git ignore rules for node_modules, checkpoints, logs
 └── README.md                              # This professional project documentation
 ```
 
 ---
 
-## Prerequisites & Installation
+## 9. Installation & Prerequisites
 
 ### System Requirements
 - **Operating System:** Windows 10/11, Ubuntu 22.04+, or macOS Sonoma
@@ -344,7 +509,7 @@ cd ..
 
 ---
 
-## Running the Application
+## 10. Running the Application
 
 ### 1. Start the FastAPI Backend
 ```powershell
@@ -368,7 +533,7 @@ npm run build
 
 ---
 
-## REST API Specification
+## 11. REST API Endpoint Reference
 
 | HTTP Method | Route Endpoint | Description | Request Payload | Response Summary |
 |---|---|---|---|---|
@@ -388,37 +553,7 @@ npm run build
 
 ---
 
-## Security Operations Console (SOC) Dashboard
-
-The dashboard provides six specialized operational modules:
-
-```text
-+--------------------------------------------------------------------------------------------------+
-| 5G-HTSTCL IDS: Enterprise SOC Operations Console                             Status: [ ONLINE ]  |
-+----------------------+---------------------------------------------------------------------------+
-| Navigation           | Active View: Prioritized 5G Threat Mitigation Queue (High ➔ Low)          |
-|                      |                                                                           |
-| [1] SOC Overview     | Containment Progress: [██████████████████████░░░░░░░░] 74% Complete       |
-| [2] Priority Stream  +---------+----------------+-------+-------------+----------+---------------+
-| [3] Simulations/CSV  | Alert ID| Target / Slice | Class | Confidence  | Priority | Mitigation    |
-| [4] Multi-Agent XAI  +---------+----------------+-------+-------------+----------+---------------+
-| [5] Network Topology | ALT-042 | UE-12 (URLLC)  | UDP.. | 97.2%       | Critical | [ Mitigate ]  |
-| [6] Attack Analytics | ALT-108 | UE-05 (eMBB)   | HTTP..| 99.4%       | Critical | [ Mitigated ] |
-|                      | ALT-019 | UE-27 (mMTC)   | Slow..| 96.1%       | High     | [ Rollback ]  |
-|                      | ALT-215 | UE-03 (eMBB)   | TCP.. | 84.8%       | Medium   | [ Inspect ]   |
-+----------------------+---------+----------------+-------+-------------+----------+---------------+
-```
-
-1. **SOC Overview:** Real-time containment progress percentage, total active vs mitigated threats, and high-level KPI cards.
-2. **Priority Threat Stream:** Dynamically sorted queue (Highest to Lowest priority score) with single-click mitigation execution and rollback.
-3. **Simulations & Upload:** 6 one-click multi-cell simulation scenarios (e.g., Volumetric DDoS Surge, Stealth Reconnaissance) and custom CSV drag-and-drop.
-4. **Multi-Agent XAI Center:** Top-5 feature attribution bars, 5-window temporal saliency distribution, and multi-agent AI dialogue rationale.
-5. **5G Network Topology Map:** Interactive visual representation of gNodeBs, connected UEs, and slice assignments (eMBB, URLLC, mMTC).
-6. **Attack Analytics:** Confusion matrices, ROC curves, and per-class precision/recall metrics directly loaded from empirical model outputs.
-
----
-
-## Automated Verification & Test Suite
+## 12. Automated Test Suite (13/13 Passed)
 
 The repository includes a comprehensive automated test suite in `tests/`:
 
@@ -428,24 +563,29 @@ cd d:\5G_Wireless_IDS
 .\backend\.venv\Scripts\python -m unittest discover tests/ -v
 ```
 
-### Test Coverage Breakdown
-- `test_01_feature_schema_integrity`: Validates exact 91-feature schema and scalar normalizer contract.
-- `test_02_dataset_multiclass_labels`: Verifies 9 attack classes and zero label collision.
-- `test_03_binary_baseline_checkpoint_preservation`: Confirms original binary checkpoint loads without error.
-- `test_04_model_multiclass_forward_pass`: Validates dual-head forward tensor shapes and probability bounds.
-- `test_05_explainable_ai_attribution`: Verifies Gradient $\times$ Input saliency and temporal window scoring.
-- `test_06_threat_prioritization`: Tests 4-factor risk scoring and priority level thresholds.
-- `test_07_defensive_response_lifecycle`: Validates recommendation, execution, and rollback state machine.
-- `test_08_federated_ids_simulation`: Verifies multi-cell partitioning and FedAvg aggregation rounds.
-- `test_01_backend_engine_initialization`: Tests backend IDSEngine warm-start and model auto-discovery.
-- `test_02_simulation_traffic_pipeline`: Verifies continuous simulation ingestion and sequence decoding.
-- `test_03_inference_service_xai`: Tests reusable InferenceService graph sequencing and XAI attribution.
-- `test_04_defensive_mitigation_lifecycle`: Tests closed-loop mitigation authorization from API endpoints.
-- `test_multi_agent_investigation_lifecycle`: Verifies multi-agent consensus synthesis.
+### Verified Test Cases
+```text
+test_01_feature_schema_integrity (test_components.Test5GIDSComponents)              ... ok
+test_02_dataset_multiclass_labels (test_components.Test5GIDSComponents)             ... ok
+test_03_binary_baseline_checkpoint_preservation (test_components.Test5GIDSComponents)... ok
+test_04_model_multiclass_forward_pass (test_components.Test5GIDSComponents)         ... ok
+test_05_explainable_ai_attribution (test_components.Test5GIDSComponents)            ... ok
+test_06_threat_prioritization (test_components.Test5GIDSComponents)                 ... ok
+test_07_defensive_response_lifecycle (test_components.Test5GIDSComponents)          ... ok
+test_08_federated_ids_simulation (test_components.Test5GIDSComponents)              ... ok
+test_01_backend_engine_initialization (test_end_to_end.TestEndToEndPipeline)         ... ok
+test_02_simulation_traffic_inference_pipeline (test_end_to_end.TestEndToEndPipeline) ... ok
+test_03_inference_service_xai_and_prioritization (test_end_to_end.TestEndToEndPipeline)... ok
+test_04_defensive_mitigation_lifecycle (test_end_to_end.TestEndToEndPipeline)        ... ok
+test_multi_agent_investigation_lifecycle (test_multi_agent_xai.TestMultiAgentXAISystem)... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 63.969s — OK (13/13 Passed, 100% Pass Rate)
+```
 
 ---
 
-## Security Considerations
+## 13. Security Considerations & Safety Controls
 
 1. **Strict Input Sanitization:** The backend checks uploaded files for MIME types, file extensions, and row multiplicity ($N \pmod{25} = 0$). Non-conforming or empty files return descriptive HTTP 400 errors instead of internal crashes.
 2. **Reversible Containment Actions:** To prevent operator lockouts or accidental service disruption, every containment policy stores the prior firewall state and can be reversed (`Rolled Back`) instantly.
@@ -454,7 +594,7 @@ cd d:\5G_Wireless_IDS
 
 ---
 
-## Limitations & Future Roadmap
+## 14. Limitations & Future Roadmap
 
 - **Row Multiplicity Requirement:** Current graph windowing requires flow records in multiples of 25 (5 nodes $\times$ 5 temporal snapshots). Streaming micro-batching with dynamic padding is planned for future iterations.
 - **Hardware Acceleration:** Current CPU throughput is ~31 sequences/sec (775 flows/sec). TensorRT and ONNX Runtime exports are planned for carrier-grade multi-gigabit throughput.
@@ -462,20 +602,7 @@ cd d:\5G_Wireless_IDS
 
 ---
 
-## Contributing
-
-Contributions, bug reports, and pull requests are welcome:
-
-1. Fork the repository.
-2. Create a feature branch: `git checkout -b feature/New5GFeature`
-3. Commit your changes: `git commit -m "feat: add dynamic slice anomaly detection"`
-4. Run the automated test suite: `python -m unittest discover tests/ -v`
-5. Push to the branch: `git push origin feature/New5GFeature`
-6. Open a Pull Request.
-
----
-
-## Documentation & Deliverables
+## 15. Documentation Index
 
 - **System Architecture Document:** [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
 - **Final Project Test Report:** [`docs/FINAL_PROJECT_TEST_REPORT.md`](docs/FINAL_PROJECT_TEST_REPORT.md)
@@ -486,8 +613,8 @@ Contributions, bug reports, and pull requests are welcome:
 
 ---
 
-## License & Acknowledgements
+## 16. License & Acknowledgements
 
 - **License:** Academic & Research Use Only. Developed for final-year engineering research.
 - **Benchmark Dataset:** 5G-NIDD Dataset provided by the original authors and 5G testbed contributors.
-- **Frameworks:** Built upon PyTorch, PyTorch Geometric, FastAPI, React, and Lucide.
+- **Frameworks:** Built upon PyTorch, PyTorch Geometric, FastAPI, React, Recharts, and MATLAB 5G Toolbox.
