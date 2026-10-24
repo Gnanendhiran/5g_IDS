@@ -1,23 +1,24 @@
-# Large Raw Datasets (>50MB)
-dataset/*.csv
+# Large Raw Datasets (>100MB)
+dataset/Combined.csv
+dataset/Encoded.csv
 ids/dataset/**/*.csv
 ids/dataset/*.zip
 ids/dataset/Combined/
 ids/dataset/Encoded/
 
-# Large Generated Sequence Tensors and Intermediate CSVs (>50MB)
+# Large Generated Sequence Tensors (>100MB)
 outputs/**/*.pt
-outputs/**/*.npz
-outputs/**/*.mat
-!outputs/sequence_dataset/python_scaler_91.mat
-outputs/**/*.csv
-!outputs/simulated_traffic/*.csv
-!outputs/simulated_traffic1/*.csv
+outputs/sequence_dataset/*.pt
+outputs/pyg_dataset/*.pt
+outputs/flow_records.csv
 outputs/node_features/
 outputs/progressive_windows/
 outputs/graph_edges/
 outputs/graphs/
-outputs/graph_visualization/
+outputs/sequence_dataset/exact_python_matlab_mapping.npz
+outputs/sequence_dataset/python_matlab_sequence_mapping.npz
+outputs/sequence_dataset/training_graph_edges_from_pt.mat
+outputs/sequence_dataset/training_graph_edges_from_pt.npz
 
 # VS Code & Caches
 
