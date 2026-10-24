@@ -1,0 +1,25 @@
+# Dataset files
+dataset/*.csv
+dataset/*.zip
+dataset/*.pcap
+dataset/*.parquet
+
+# Generated outputs
+outputs/*
+!outputs/.gitkeep
+!outputs/.gitignore
+
+# Trained models
+saved_models/*.pth
+saved_models/*.pt
+
+# Python
+__pycache__/
+*.pyc
+
+# Virtual environment
+.venv/
+venv/
+
+# VS Code
+.vscode/

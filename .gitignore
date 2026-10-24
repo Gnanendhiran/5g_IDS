@@ -1,11 +1,25 @@
-# Dataset
-dataset/
+# Large Raw Datasets (>50MB)
+dataset/*.csv
+ids/dataset/**/*.csv
+ids/dataset/*.zip
+ids/dataset/Combined/
+ids/dataset/Encoded/
 
-# Generated outputs
-outputs/
+# Large Generated Sequence Tensors and Intermediate CSVs (>50MB)
+outputs/**/*.pt
+outputs/**/*.npz
+outputs/**/*.mat
+!outputs/sequence_dataset/python_scaler_91.mat
+outputs/**/*.csv
+!outputs/simulated_traffic/*.csv
+!outputs/simulated_traffic1/*.csv
+outputs/node_features/
+outputs/progressive_windows/
+outputs/graph_edges/
+outputs/graphs/
+outputs/graph_visualization/
 
-# Trained models
-saved_models/
+# VS Code & Caches
 
 # Python
 __pycache__/
