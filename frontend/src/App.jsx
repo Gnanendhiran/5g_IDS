@@ -1193,7 +1193,7 @@ export default function App() {
 
             {/* Comprehensive Professional Table */}
             <div style={{ overflowX: "auto" }}>
-              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.83rem", minWidth: "1680px" }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.83rem", minWidth: "1280px" }}>
                 <thead>
                   <tr style={{ borderBottom: "2px solid #1e293b", color: "#94a3b8", textAlign: "left" }}>
                     <th style={{ padding: "12px 10px", width: "130px", minWidth: "130px" }}>Priority Rank</th>
@@ -1203,14 +1203,13 @@ export default function App() {
                     <th style={{ padding: "12px 10px", width: "110px", minWidth: "105px" }}>Packet Count</th>
                     <th style={{ padding: "12px 10px", width: "90px", minWidth: "85px" }}>Duration</th>
                     <th style={{ padding: "12px 10px", width: "180px", minWidth: "170px" }}>Status / When Prevented</th>
-                    <th style={{ padding: "12px 12px", width: "380px", minWidth: "350px" }}>How Mitigation Performs</th>
                     <th style={{ padding: "12px 12px", width: "210px", minWidth: "200px", textAlign: "right" }}>Mitigation Action</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredSequences.length === 0 ? (
                     <tr>
-                      <td colSpan="9" style={{ padding: "32px", textAlign: "center", color: "#64748b" }}>
+                      <td colSpan="8" style={{ padding: "32px", textAlign: "center", color: "#64748b" }}>
                         No threats found matching the current queue filter.
                       </td>
                     </tr>
@@ -1357,42 +1356,6 @@ export default function App() {
                                 Active Incursion
                               </span>
                             )}
-                          </td>
-
-                          {/* How Mitigation Performs */}
-                          <td style={{
-                            padding: "14px 12px",
-                            width: "380px",
-                            minWidth: "350px",
-                            maxWidth: "450px",
-                            verticalAlign: "middle"
-                          }}>
-                            <div style={{
-                              background: "rgba(15, 23, 42, 0.75)",
-                              border: "1px solid #1e293b",
-                              borderRadius: "6px",
-                              padding: "8px 10px"
-                            }}>
-                              <div style={{
-                                fontWeight: "700",
-                                color: "#38bdf8",
-                                fontSize: "0.8rem",
-                                lineHeight: "1.35",
-                                marginBottom: "4px",
-                                wordBreak: "break-word"
-                              }}>
-                                {seq.recommended_action || "Defensive Mitigation"}
-                              </div>
-                              <div style={{
-                                fontSize: "0.74rem",
-                                color: "#cbd5e1",
-                                lineHeight: "1.45",
-                                wordBreak: "break-word",
-                                whiteSpace: "normal"
-                              }}>
-                                {seq.how_mitigated}
-                              </div>
-                            </div>
                           </td>
 
                           {/* Mitigation Action */}
@@ -2672,12 +2635,12 @@ export default function App() {
                       const gnb = GNB_BASE_STATIONS[u.gnb - 1];
                       const ueSvgY = 850 - u.y;
                       const ueSeqs = rawSequences.filter(s => s.ue_id === u.ue);
-                      const isMalicious = ueSeqs.some(s => s.prediction === "Malicious" && !s.is_mitigated);
                       const isMitigated = ueSeqs.some(s => s.is_mitigated);
+                      const isMalicious = !isMitigated && ueSeqs.some(s => s.prediction === "Malicious");
                       const activeThreatSeq = ueSeqs.find(s => s.prediction === "Malicious" && !s.is_mitigated);
                       const isHovered = hoveredUe?.ue === u.ue;
 
-                      const nodeColor = isMalicious ? "#ef4444" : (isMitigated ? "#10b981" : gnb.color);
+                      const nodeColor = isMitigated ? "#10b981" : (isMalicious ? "#ef4444" : gnb.color);
 
                       return (
                         <g
@@ -2700,6 +2663,20 @@ export default function App() {
                               stroke="#ef4444"
                               strokeWidth="2"
                               opacity="0.8"
+                            />
+                          )}
+
+                          {/* Protective halo for contained UEs */}
+                          {isMitigated && (
+                            <circle
+                              cx={u.x}
+                              cy={ueSvgY}
+                              r={isHovered ? 18 : 14}
+                              fill="none"
+                              stroke="#10b981"
+                              strokeWidth="2"
+                              strokeDasharray="3,2"
+                              opacity="0.9"
                             />
                           )}
 
@@ -2776,22 +2753,22 @@ export default function App() {
                       left: "16px",
                       background: "rgba(15, 23, 42, 0.95)",
                       backdropFilter: "blur(8px)",
-                      border: `1px solid ${hoveredUe.isMalicious ? "#ef4444" : "#38bdf8"}`,
+                      border: `1px solid ${hoveredUe.isMitigated ? "#10b981" : (hoveredUe.isMalicious ? "#ef4444" : "#38bdf8")}`,
                       borderRadius: "8px",
                       padding: "12px 16px",
                       color: "#f8fafc",
                       fontSize: "0.82rem",
-                      boxShadow: "0 8px 24px rgba(0, 0, 0, 0.5)",
+                      boxShadow: hoveredUe.isMitigated ? "0 8px 24px rgba(16, 185, 129, 0.3)" : "0 8px 24px rgba(0, 0, 0, 0.5)",
                       pointerEvents: "none"
                     }}>
                       <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
-                        <span style={{ fontWeight: "700", fontSize: "0.95rem", color: "#38bdf8" }}>UE-{hoveredUe.ue}</span>
+                        <span style={{ fontWeight: "700", fontSize: "0.95rem", color: hoveredUe.isMitigated ? "#10b981" : "#38bdf8" }}>UE-{hoveredUe.ue}</span>
                         <span style={{ fontSize: "0.72rem", color: "#94a3b8" }}>Serving: {hoveredUe.sector} (gNB-{hoveredUe.gnb})</span>
                       </div>
                       <div style={{ fontSize: "0.74rem", color: "#cbd5e1" }}>
                         Coordinates: ({hoveredUe.x}m, {hoveredUe.y}m) | Status:{" "}
-                        <strong style={{ color: hoveredUe.isMalicious ? "#ef4444" : (hoveredUe.isMitigated ? "#10b981" : "#38bdf8") }}>
-                          {hoveredUe.isMalicious ? `Active Attack: ${hoveredUe.activeThreatSeq?.predicted_attack_type || 'Malicious'}` : (hoveredUe.isMitigated ? "Contained" : "Nominal Cellular Flow")}
+                        <strong style={{ color: hoveredUe.isMitigated ? "#10b981" : (hoveredUe.isMalicious ? "#ef4444" : "#38bdf8") }}>
+                          {hoveredUe.isMitigated ? "Contained & Protected" : (hoveredUe.isMalicious ? `Active Attack: ${hoveredUe.activeThreatSeq?.predicted_attack_type || 'Malicious'}` : "Nominal Cellular Flow")}
                         </strong>
                       </div>
                       <div style={{ fontSize: "0.7rem", color: "#64748b", marginTop: "4px" }}>
@@ -2917,8 +2894,8 @@ export default function App() {
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: "8px" }}>
                       {gnb.ues.map(ueNum => {
                         const ueSeqs = rawSequences.filter(s => s.ue_id === ueNum);
-                        const isMalicious = ueSeqs.some(s => s.prediction === "Malicious" && !s.is_mitigated);
                         const isPrevented = ueSeqs.some(s => s.is_mitigated);
+                        const isMalicious = !isPrevented && ueSeqs.some(s => s.prediction === "Malicious");
                         const activeThreatSeq = ueSeqs.find(s => s.prediction === "Malicious" && !s.is_mitigated);
 
                         return (
@@ -2928,27 +2905,30 @@ export default function App() {
                               if (activeThreatSeq) handleSelectSequence(activeThreatSeq);
                               else if (ueSeqs.length > 0) handleSelectSequence(ueSeqs[0]);
                             }}
-                            title={`UE-${ueNum} - ${isMalicious ? 'Active Attack Detected' : isPrevented ? 'Contained' : 'Nominal'}`}
+                            title={`UE-${ueNum} - ${isPrevented ? 'Contained & Protected' : (isMalicious ? 'Active Attack Detected' : 'Nominal')}`}
                             style={{
                               padding: "8px 4px",
                               borderRadius: "6px",
                               textAlign: "center",
-                              background: isMalicious ? "#7f1d1d" : (isPrevented ? "#064e3b" : "#0f172a"),
-                              border: isMalicious ? "1px solid #ef4444" : (isPrevented ? "1px solid #10b981" : "1px solid #334155"),
+                              background: isPrevented ? "rgba(6, 78, 59, 0.9)" : (isMalicious ? "#7f1d1d" : "#0f172a"),
+                              border: isPrevented ? "1.5px solid #10b981" : (isMalicious ? "1px solid #ef4444" : "1px solid #334155"),
                               fontSize: "0.72rem",
                               cursor: ueSeqs.length > 0 ? "pointer" : "default",
                               transition: "all 0.15s ease",
-                              boxShadow: isMalicious ? "0 0 8px rgba(239, 68, 68, 0.4)" : "none"
+                              boxShadow: isPrevented ? "0 0 10px rgba(16, 185, 129, 0.5)" : (isMalicious ? "0 0 8px rgba(239, 68, 68, 0.4)" : "none")
                             }}
                           >
-                            <div style={{ fontWeight: "700", color: "#f8fafc" }}>UE-{ueNum}</div>
+                            <div style={{ fontWeight: "700", color: isPrevented ? "#86efac" : "#f8fafc", display: "flex", alignItems: "center", justifyContent: "center", gap: "2px" }}>
+                              {isPrevented && <ShieldCheck size={11} color="#86efac" />}
+                              UE-{ueNum}
+                            </div>
                             <div style={{
                               fontSize: "0.62rem",
-                              color: isMalicious ? "#fca5a5" : (isPrevented ? "#86efac" : "#64748b"),
+                              color: isPrevented ? "#86efac" : (isMalicious ? "#fca5a5" : "#64748b"),
                               marginTop: "2px",
-                              fontWeight: isMalicious || isPrevented ? "700" : "500"
+                              fontWeight: isPrevented || isMalicious ? "700" : "500"
                             }}>
-                              {isMalicious ? (activeThreatSeq?.predicted_attack_type ? activeThreatSeq.predicted_attack_type.slice(0, 7) : "Active") : (isPrevented ? "Contained" : "Nominal")}
+                              {isPrevented ? "Protected" : (isMalicious ? (activeThreatSeq?.predicted_attack_type ? activeThreatSeq.predicted_attack_type.slice(0, 7) : "Active") : "Nominal")}
                             </div>
                           </div>
                         );
