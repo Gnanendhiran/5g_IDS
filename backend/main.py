@@ -290,10 +290,50 @@ def list_simulated_scenarios():
             "filename": "live_5g_sim_6_coordinated_apt_campaign.csv",
             "title": "Scenario 6: Coordinated Advanced Persistent Threat (APT)",
             "description": "10,000 flows of a multi-stage campaign progressing from reconnaissance to volumetric saturation with 10% Benign across 45 UEs and 3 gNodeBs.",
-            "classes_included": ["TCPConnectScan", "SYNScan", "UDPScan", "SlowrateDoS", "HTTPFlood", "SYNFlood", "UDPFlood", "Benign"],
+            "classes_included": ["HTTPFlood", "SlowrateDoS", "TCPConnectScan", "UDPFlood", "SYNFlood", "SYNScan", "UDPScan", "ICMPFlood", "Benign"],
             "records": 10000,
             "sequences": 400,
             "exists": (sim_dir / "live_5g_sim_6_coordinated_apt_campaign.csv").exists()
+        },
+        {
+            "id": 7,
+            "filename": "live_5g_sim_7_four_attack_perimeter.csv",
+            "title": "Scenario 7: Four-Attack Cellular Perimeter Breach",
+            "description": "10,000 flows (400 sequences) containing exactly 4 attack types (UDPFlood, SYNFlood, TCPConnectScan, SYNScan: 90 seqs each) + 10% Benign baseline across 45 UEs and 3 gNodeBs.",
+            "classes_included": ["UDPFlood", "SYNFlood", "TCPConnectScan", "SYNScan", "Benign"],
+            "records": 10000,
+            "sequences": 400,
+            "exists": (sim_dir / "live_5g_sim_7_four_attack_perimeter.csv").exists()
+        },
+        {
+            "id": 8,
+            "filename": "live_5g_sim_8_tri_attack_surge.csv",
+            "title": "Scenario 8: Tri-Attack Volumetric Inundation",
+            "description": "10,000 flows (400 sequences) containing exactly 3 attack types (UDPFlood, SYNFlood, ICMPFlood: 120 seqs each) + 10% Benign baseline across 45 UEs and 3 gNodeBs.",
+            "classes_included": ["UDPFlood", "SYNFlood", "ICMPFlood", "Benign"],
+            "records": 10000,
+            "sequences": 400,
+            "exists": (sim_dir / "live_5g_sim_8_tri_attack_surge.csv").exists()
+        },
+        {
+            "id": 9,
+            "filename": "live_5g_sim_9_six_attack_advanced.csv",
+            "title": "Scenario 9: Six-Attack Advanced Persistent Vector",
+            "description": "10,000 flows (400 sequences) containing exactly 6 attack types (SlowrateDoS, TCPConnectScan, SYNScan, UDPScan, SYNFlood, ICMPFlood: 60 seqs each) + 10% Benign baseline across 45 UEs and 3 gNodeBs.",
+            "classes_included": ["SlowrateDoS", "TCPConnectScan", "SYNScan", "UDPScan", "SYNFlood", "ICMPFlood", "Benign"],
+            "records": 10000,
+            "sequences": 400,
+            "exists": (sim_dir / "live_5g_sim_9_six_attack_advanced.csv").exists()
+        },
+        {
+            "id": 10,
+            "filename": "live_5g_sim_10_penta_attack_telemetry.csv",
+            "title": "Scenario 10: Penta-Attack Telemetry Benchmark",
+            "description": "10,000 flows (400 sequences) containing exactly 5 attack types (HTTPFlood, SlowrateDoS, UDPFlood, SYNFlood, TCPConnectScan: 72 seqs each) + 10% Benign baseline across 45 UEs and 3 gNodeBs.",
+            "classes_included": ["HTTPFlood", "SlowrateDoS", "UDPFlood", "SYNFlood", "TCPConnectScan", "Benign"],
+            "records": 10000,
+            "sequences": 400,
+            "exists": (sim_dir / "live_5g_sim_10_penta_attack_telemetry.csv").exists()
         }
     ]
     return {"scenarios": scenarios}

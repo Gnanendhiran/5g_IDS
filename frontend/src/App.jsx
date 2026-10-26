@@ -172,6 +172,7 @@ export default function App() {
   const [showCoverageZones, setShowCoverageZones] = useState(true);
   const [showAccessLinks, setShowAccessLinks] = useState(true);
   const [showBackhaulMesh, setShowBackhaulMesh] = useState(true);
+  const [scenarioTab, setScenarioTab] = useState("all"); // 'all' | 'full' | 'constrained'
 
   const fileInputRef = useRef(null);
 
@@ -2089,6 +2090,7 @@ export default function App() {
         ======================================================== */}
         {page === "upload" && !loading && (
           <div>
+            {/* Custom CSV Upload Box */}
             <div style={{
               background: "#0f172a",
               border: "2px dashed #334155",
@@ -2099,9 +2101,9 @@ export default function App() {
             }}>
               <Upload size={40} color="#38bdf8" style={{ margin: "0 auto 12px auto" }} />
               <h3 style={{ fontSize: "1.2rem", fontWeight: "700", margin: "0 0 8px 0" }}>Upload Custom 5G Simulation Traffic CSV</h3>
-              <p style={{ fontSize: "0.85rem", color: "#94a3b8", maxWidth: "600px", margin: "0 auto 20px auto" }}>
+              <p style={{ fontSize: "0.85rem", color: "#94a3b8", maxWidth: "660px", margin: "0 auto 20px auto", lineHeight: "1.5" }}>
                 Upload any traffic CSV containing the 8 calibration fields (Duration, PacketCount, Bytes, PacketRate,
-                MeanPacketSize, MinPacketSize, MaxPacketSize, LossRate). Rows must be a multiple of 25.
+                MeanPacketSize, MinPacketSize, MaxPacketSize, LossRate). Rows must be a multiple of 25 (e.g. 10,000 rows = 400 sequences).
               </p>
               <button
                 onClick={() => fileInputRef.current?.click()}
@@ -2113,119 +2115,242 @@ export default function App() {
                   color: "#fff",
                   fontWeight: "600",
                   fontSize: "0.9rem",
-                  cursor: "pointer"
+                  cursor: "pointer",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "8px"
                 }}
               >
+                <Upload size={16} />
                 Browse & Analyze Local CSV
               </button>
             </div>
 
-            <div style={{ marginBottom: "16px" }}>
-              <h3 style={{ fontSize: "1.2rem", fontWeight: "700", margin: "0 0 6px 0" }}>
-                Pre-Generated 5G Simulation Benchmark Datasets (5,000+ Records Each)
-              </h3>
-              <p style={{ fontSize: "0.85rem", color: "#94a3b8", margin: 0 }}>
-                Generated using realistic 5G multi-cell telemetry across 30 UEs and 2 gNBs. Each contains 200 sequences (5,000 flows) covering all genuine 5G-NIDD attack families.
-              </p>
+            {/* Simulation Header and Tab Controls */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "20px", flexWrap: "wrap", gap: "16px" }}>
+              <div>
+                <h3 style={{ fontSize: "1.25rem", fontWeight: "700", margin: "0 0 6px 0", color: "#f8fafc" }}>
+                  5G Simulation Datasets & Live Ingestion Suite
+                </h3>
+                <p style={{ fontSize: "0.84rem", color: "#94a3b8", margin: 0, maxWidth: "780px", lineHeight: "1.5" }}>
+                  10 distinct, production-grade 5G simulation CSVs. Each dataset contains <b>exactly 10,000 flows (400 sequences)</b> across <b>45 UEs and 3 gNodeBs</b> with <b>exactly 10.00% Benign baseline (1,000 flows)</b>.
+                </p>
+              </div>
+
+              {/* Category Filter Tabs */}
+              <div style={{ display: "flex", gap: "8px", background: "#1e293b", padding: "4px", borderRadius: "8px", border: "1px solid #334155" }}>
+                {[
+                  { id: "all", label: `All Scenarios (${scenarios.length})` },
+                  { id: "full", label: "Full-Spectrum (1-6)" },
+                  { id: "constrained", label: "Targeted Suites (7-10)" }
+                ].map(t => (
+                  <button
+                    key={t.id}
+                    onClick={() => setScenarioTab(t.id)}
+                    style={{
+                      padding: "6px 14px",
+                      borderRadius: "6px",
+                      border: "none",
+                      fontSize: "0.8rem",
+                      fontWeight: "600",
+                      background: scenarioTab === t.id ? "#0284c7" : "transparent",
+                      color: scenarioTab === t.id ? "#fff" : "#94a3b8",
+                      cursor: "pointer",
+                      transition: "all 0.15s ease"
+                    }}
+                  >
+                    {t.label}
+                  </button>
+                ))}
+              </div>
             </div>
 
+            {/* Grid of Scenario Cards */}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "20px" }}>
-              {scenarios.map(sc => (
-                <div key={sc.id} style={{
-                  background: "#0f172a",
-                  border: "1px solid #1e293b",
-                  borderRadius: "12px",
-                  padding: "24px",
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "space-between"
-                }}>
-                  <div>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "10px" }}>
-                      <h4 style={{ margin: 0, fontSize: "1.05rem", fontWeight: "700", color: "#f8fafc" }}>{sc.title}</h4>
-                      <span style={{
-                        padding: "3px 8px",
-                        borderRadius: "4px",
-                        fontSize: "0.75rem",
-                        fontWeight: "600",
-                        background: "#1e293b",
-                        color: "#38bdf8",
-                        border: "1px solid #334155"
-                      }}>
-                        {sc.records?.toLocaleString() || "10,000"} Flows ({sc.sequences || (sc.records ? sc.records / 25 : 400)} Seqs)
-                      </span>
-                    </div>
+              {scenarios
+                .filter(sc => {
+                  if (scenarioTab === "full") return sc.id <= 6;
+                  if (scenarioTab === "constrained") return sc.id >= 7;
+                  return true;
+                })
+                .map(sc => {
+                  const isConstrained = sc.id >= 7;
+                  const attackCountBadge = 
+                    sc.id === 7 ? "4 Attack Types (90 Seqs Each) + 10% Normal" :
+                    sc.id === 8 ? "3 Attack Types (120 Seqs Each) + 10% Normal" :
+                    sc.id === 9 ? "6 Attack Types (60 Seqs Each) + 10% Normal" :
+                    sc.id === 10 ? "5 Attack Types (72 Seqs Each) + 10% Normal" :
+                    "All 8 Attacks (Asymmetric Pool) + 10% Normal";
 
-                    <p style={{ fontSize: "0.83rem", color: "#cbd5e1", lineHeight: "1.5", margin: "0 0 16px 0" }}>
-                      {sc.description}
-                    </p>
+                  const expectedTopThreat = 
+                    sc.id === 7 ? { name: "UDPFlood", score: "64.8/100", level: "Medium", note: "HTTPFlood absent -> UDPFlood takes #1 priority" } :
+                    sc.id === 8 ? { name: "UDPFlood", score: "64.8/100", level: "Medium", note: "Pure volumetric flood -> UDPFlood takes #1 priority" } :
+                    sc.id === 9 ? { name: "SYNFlood", score: "64.3/100", level: "Medium", note: "HTTPFlood absent -> SYNFlood takes #1 priority" } :
+                    { name: "HTTPFlood", score: "66.8/100", level: "High", note: "SBA Core Starvation base severity (90) drives #1 priority" };
 
-                    <div style={{ marginBottom: "16px" }}>
-                      <span style={{ fontSize: "0.75rem", color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: "600" }}>
-                        Attack Classes Included:
-                      </span>
-                      <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", marginTop: "6px" }}>
-                        {sc.classes_included.map(cls => (
-                          <span key={cls} style={{
-                            padding: "2px 8px",
+                  return (
+                    <div key={sc.id} style={{
+                      background: "#0f172a",
+                      border: isConstrained ? "1px solid #0284c7" : "1px solid #1e293b",
+                      borderRadius: "12px",
+                      padding: "24px",
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "space-between",
+                      boxShadow: isConstrained ? "0 0 15px rgba(2, 132, 199, 0.1)" : "none"
+                    }}>
+                      <div>
+                        {/* Title & Badges */}
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "8px", gap: "10px" }}>
+                          <h4 style={{ margin: 0, fontSize: "1.05rem", fontWeight: "700", color: "#f8fafc" }}>
+                            {sc.title}
+                          </h4>
+                          <span style={{
+                            padding: "3px 8px",
                             borderRadius: "4px",
                             fontSize: "0.72rem",
                             fontWeight: "600",
                             background: "#1e293b",
-                            color: ATTACK_COLORS[cls] || "#cbd5e1"
+                            color: "#38bdf8",
+                            border: "1px solid #334155",
+                            whiteSpace: "nowrap"
                           }}>
-                            {cls}
+                            {sc.records?.toLocaleString() || "10,000"} Flows (400 Seqs)
                           </span>
-                        ))}
+                        </div>
+
+                        {/* Scenario Category Badge */}
+                        <div style={{ display: "flex", gap: "8px", marginBottom: "12px", flexWrap: "wrap" }}>
+                          <span style={{
+                            fontSize: "0.72rem",
+                            padding: "2px 8px",
+                            borderRadius: "4px",
+                            fontWeight: "600",
+                            background: isConstrained ? "rgba(2, 132, 199, 0.15)" : "rgba(148, 163, 184, 0.12)",
+                            color: isConstrained ? "#38bdf8" : "#94a3b8",
+                            border: isConstrained ? "1px solid rgba(2, 132, 199, 0.4)" : "1px solid #334155"
+                          }}>
+                            {attackCountBadge}
+                          </span>
+                          <span style={{
+                            fontSize: "0.72rem",
+                            padding: "2px 8px",
+                            borderRadius: "4px",
+                            fontWeight: "600",
+                            background: "rgba(16, 185, 129, 0.12)",
+                            color: "#10b981",
+                            border: "1px solid rgba(16, 185, 129, 0.3)"
+                          }}>
+                            10% Benign (1,000 Flows)
+                          </span>
+                        </div>
+
+                        <p style={{ fontSize: "0.83rem", color: "#cbd5e1", lineHeight: "1.5", margin: "0 0 14px 0" }}>
+                          {sc.description}
+                        </p>
+
+                        {/* Attack Classes Included */}
+                        <div style={{ marginBottom: "14px" }}>
+                          <span style={{ fontSize: "0.74rem", color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: "700" }}>
+                            Attacks Present ({sc.classes_included.filter(c => c !== "Benign").length}):
+                          </span>
+                          <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", marginTop: "6px" }}>
+                            {sc.classes_included.map(cls => (
+                              <span key={cls} style={{
+                                padding: "2px 8px",
+                                borderRadius: "4px",
+                                fontSize: "0.72rem",
+                                fontWeight: "600",
+                                background: "#1e293b",
+                                color: ATTACK_COLORS[cls] || "#cbd5e1",
+                                border: "1px solid #334155"
+                              }}>
+                                {cls}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Expected Top Threat Prioritization Indicator */}
+                        <div style={{
+                          background: "#0b0f19",
+                          border: "1px solid #1e293b",
+                          borderRadius: "8px",
+                          padding: "10px 12px",
+                          fontSize: "0.78rem",
+                          marginBottom: "12px",
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center"
+                        }}>
+                          <div>
+                            <span style={{ color: "#64748b" }}>Expected Top Priority: </span>
+                            <b style={{ color: ATTACK_COLORS[expectedTopThreat.name] || "#f8fafc" }}>
+                              {expectedTopThreat.name}
+                            </b>
+                            <span style={{ color: "#94a3b8", marginLeft: "6px" }}>({expectedTopThreat.score})</span>
+                          </div>
+                          <span style={{
+                            padding: "2px 8px",
+                            borderRadius: "4px",
+                            fontSize: "0.7rem",
+                            fontWeight: "700",
+                            background: PRIORITY_BADGES[expectedTopThreat.level]?.bg,
+                            color: PRIORITY_BADGES[expectedTopThreat.level]?.text,
+                            border: `1px solid ${PRIORITY_BADGES[expectedTopThreat.level]?.border}`
+                          }}>
+                            {expectedTopThreat.level} Priority
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Card Action Buttons */}
+                      <div style={{ display: "flex", gap: "10px", marginTop: "14px", paddingTop: "14px", borderTop: "1px solid #1e293b" }}>
+                        <button
+                          onClick={() => loadScenarioDataset(sc.filename)}
+                          style={{
+                            flex: 1,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            gap: "8px",
+                            padding: "9px 16px",
+                            borderRadius: "6px",
+                            border: "none",
+                            background: "#0284c7",
+                            color: "#fff",
+                            fontSize: "0.85rem",
+                            fontWeight: "600",
+                            cursor: "pointer"
+                          }}
+                        >
+                          <PlayCircle size={16} />
+                          Run Live Simulation
+                        </button>
+
+                        <button
+                          onClick={() => downloadScenarioDataset(sc.filename)}
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "8px",
+                            padding: "9px 16px",
+                            borderRadius: "6px",
+                            border: "1px solid #334155",
+                            background: "#1e293b",
+                            color: "#94a3b8",
+                            fontSize: "0.85rem",
+                            fontWeight: "600",
+                            cursor: "pointer"
+                          }}
+                        >
+                          <Download size={15} />
+                          Download .CSV
+                        </button>
                       </div>
                     </div>
-                  </div>
-
-                  <div style={{ display: "flex", gap: "10px", marginTop: "14px", paddingTop: "14px", borderTop: "1px solid #1e293b" }}>
-                    <button
-                      onClick={() => loadScenarioDataset(sc.filename)}
-                      style={{
-                        flex: 1,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        gap: "8px",
-                        padding: "9px 16px",
-                        borderRadius: "6px",
-                        border: "none",
-                        background: "#0284c7",
-                        color: "#fff",
-                        fontSize: "0.85rem",
-                        fontWeight: "600",
-                        cursor: "pointer"
-                      }}
-                    >
-                      <PlayCircle size={16} />
-                      Run Live Simulation
-                    </button>
-
-                    <button
-                      onClick={() => downloadScenarioDataset(sc.filename)}
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "8px",
-                        padding: "9px 16px",
-                        borderRadius: "6px",
-                        border: "1px solid #334155",
-                        background: "#1e293b",
-                        color: "#94a3b8",
-                        fontSize: "0.85rem",
-                        fontWeight: "600",
-                        cursor: "pointer"
-                      }}
-                    >
-                      <Download size={15} />
-                      Download .CSV
-                    </button>
-                  </div>
-                </div>
-              ))}
+                  );
+                })}
             </div>
           </div>
         )}
