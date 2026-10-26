@@ -2223,25 +2223,25 @@ export default function App() {
                         <div style={{ display: "flex", gap: "8px", marginBottom: "12px", flexWrap: "wrap" }}>
                           <span style={{
                             fontSize: "0.72rem",
-                            padding: "2px 8px",
+                            padding: "3px 9px",
                             borderRadius: "4px",
                             fontWeight: "600",
                             background: isConstrained ? "rgba(2, 132, 199, 0.15)" : "rgba(148, 163, 184, 0.12)",
-                            color: isConstrained ? "#38bdf8" : "#94a3b8",
+                            color: isConstrained ? "#38bdf8" : "#cbd5e1",
                             border: isConstrained ? "1px solid rgba(2, 132, 199, 0.4)" : "1px solid #334155"
                           }}>
-                            {attackCountBadge}
+                            {sc.dominant_theme || attackCountBadge}
                           </span>
                           <span style={{
                             fontSize: "0.72rem",
-                            padding: "2px 8px",
+                            padding: "3px 9px",
                             borderRadius: "4px",
                             fontWeight: "600",
                             background: "rgba(16, 185, 129, 0.12)",
                             color: "#10b981",
                             border: "1px solid rgba(16, 185, 129, 0.3)"
                           }}>
-                            10% Benign (1,000 Flows)
+                            10% Benign (40 seqs / 1,000 Flows)
                           </span>
                         </div>
 
@@ -2251,23 +2251,39 @@ export default function App() {
 
                         {/* Attack Classes Included */}
                         <div style={{ marginBottom: "14px" }}>
-                          <span style={{ fontSize: "0.74rem", color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: "700" }}>
-                            Attacks Present ({sc.classes_included.filter(c => c !== "Benign").length}):
-                          </span>
-                          <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", marginTop: "6px" }}>
-                            {sc.classes_included.map(cls => (
-                              <span key={cls} style={{
-                                padding: "2px 8px",
-                                borderRadius: "4px",
-                                fontSize: "0.72rem",
-                                fontWeight: "600",
-                                background: "#1e293b",
-                                color: ATTACK_COLORS[cls] || "#cbd5e1",
-                                border: "1px solid #334155"
-                              }}>
-                                {cls}
-                              </span>
-                            ))}
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
+                            <span style={{ fontSize: "0.74rem", color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: "700" }}>
+                              Attacks Present ({sc.classes_included.filter(c => c !== "Benign").length} Attack Types):
+                            </span>
+                            <span style={{ fontSize: "0.72rem", color: "#64748b" }}>
+                              Total: 400 Seqs (10,000 Flows)
+                            </span>
+                          </div>
+                          <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
+                            {sc.classes_included.map(cls => {
+                              const count = sc.breakdown ? sc.breakdown[cls] : null;
+                              return (
+                                <span key={cls} style={{
+                                  padding: "3px 8px",
+                                  borderRadius: "4px",
+                                  fontSize: "0.72rem",
+                                  fontWeight: "600",
+                                  background: "#1e293b",
+                                  color: ATTACK_COLORS[cls] || "#cbd5e1",
+                                  border: "1px solid #334155",
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: "4px"
+                                }}>
+                                  <span>{cls}</span>
+                                  {count !== null && count !== undefined && (
+                                    <span style={{ color: "#94a3b8", fontSize: "0.68rem", fontWeight: "500" }}>
+                                      ({count} seqs)
+                                    </span>
+                                  )}
+                                </span>
+                              );
+                            })}
                           </div>
                         </div>
 
