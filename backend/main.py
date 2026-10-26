@@ -331,3 +331,40 @@ def download_scenario(filename: str):
     if not file_path.exists():
         raise HTTPException(404, f"File {filename} not found.")
     return FileResponse(file_path, media_type="text/csv", filename=filename)
+
+
+@app.get("/api/ids/topology-diagram")
+def get_topology_diagram():
+    from fastapi.responses import FileResponse
+    png_path = project_root / "outputs" / "5g_network_topology_3gnb_45ue.png"
+    if not png_path.exists():
+        raise HTTPException(404, "Topology diagram PNG not found.")
+    return FileResponse(png_path, media_type="image/png")
+
+
+@app.get("/api/ids/topology-data")
+def get_topology_data():
+    import json
+    coords_path = project_root / "outputs" / "ue_coordinates.json"
+    ues = []
+    if coords_path.exists():
+        try:
+            ues = json.loads(coords_path.read_text(encoding="utf-8"))
+        except Exception:
+            pass
+    
+    return {
+        "dimensions": {"width_m": 1000, "height_m": 850},
+        "cell_radius_m": 280,
+        "base_stations": [
+            {"id": "gNB-1", "sector": "Sector A", "pos": [250, 550], "color": "#38bdf8"},
+            {"id": "gNB-2", "sector": "Sector B", "pos": [750, 550], "color": "#a855f7"},
+            {"id": "gNB-3", "sector": "Sector C", "pos": [500, 200], "color": "#10b981"}
+        ],
+        "backhaul_links": [
+            {"from": "gNB-1", "to": "gNB-2", "type": "5G-Xn-Backhaul"},
+            {"from": "gNB-2", "to": "gNB-3", "type": "5G-Xn-Backhaul"},
+            {"from": "gNB-3", "to": "gNB-1", "type": "5G-Xn-Backhaul"}
+        ],
+        "ues": ues
+    }

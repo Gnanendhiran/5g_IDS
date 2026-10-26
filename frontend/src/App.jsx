@@ -91,6 +91,60 @@ const PRIORITY_BADGES = {
   Benign: { bg: "#064e3b", text: "#86efac", border: "#10b981" }
 };
 
+const GNB_BASE_STATIONS = [
+  { id: "gNB-1", sector: "Sector A", x: 250, y: 550, color: "#38bdf8", ues: [1, 4, 7, 10, 13, 16, 19, 22, 25, 28, 31, 34, 37, 40, 43] },
+  { id: "gNB-2", sector: "Sector B", x: 750, y: 550, color: "#a855f7", ues: [2, 5, 8, 11, 14, 17, 20, 23, 26, 29, 32, 35, 38, 41, 44] },
+  { id: "gNB-3", sector: "Sector C", x: 500, y: 200, color: "#10b981", ues: [3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36, 39, 42, 45] }
+];
+
+const UE_TOPOLOGY_COORDS = [
+  { ue: 1, gnb: 1, x: 425.7, y: 493.8 },
+  { ue: 2, gnb: 2, x: 558.2, y: 413.1 },
+  { ue: 3, gnb: 3, x: 577.4, y: 315.4 },
+  { ue: 4, gnb: 1, x: 321.1, y: 470.6 },
+  { ue: 5, gnb: 2, x: 693.0, y: 338.7 },
+  { ue: 6, gnb: 3, x: 584.6, y: 183.8 },
+  { ue: 7, gnb: 1, x: 308.0, y: 790.7 },
+  { ue: 8, gnb: 2, x: 809.1, y: 683.0 },
+  { ue: 9, gnb: 3, x: 330.2, y: 173.4 },
+  { ue: 10, gnb: 1, x: 200.3, y: 737.5 },
+  { ue: 11, gnb: 2, x: 890.9, y: 719.3 },
+  { ue: 12, gnb: 3, x: 386.8, y: 326.2 },
+  { ue: 13, gnb: 1, x: 293.4, y: 357.0 },
+  { ue: 14, gnb: 2, x: 600.8, y: 536.6 },
+  { ue: 15, gnb: 3, x: 708.4, y: 262.6 },
+  { ue: 16, gnb: 1, x: 355.2, y: 742.9 },
+  { ue: 17, gnb: 2, x: 854.0, y: 515.4 },
+  { ue: 18, gnb: 3, x: 594.1, y: 30.0 },
+  { ue: 19, gnb: 1, x: 390.5, y: 649.0 },
+  { ue: 20, gnb: 2, x: 536.3, y: 634.4 },
+  { ue: 21, gnb: 3, x: 370.7, y: 203.9 },
+  { ue: 22, gnb: 1, x: 329.9, y: 498.8 },
+  { ue: 23, gnb: 2, x: 664.9, y: 411.2 },
+  { ue: 24, gnb: 3, x: 328.1, y: 178.2 },
+  { ue: 25, gnb: 1, x: 334.1, y: 743.8 },
+  { ue: 26, gnb: 2, x: 791.3, y: 290.5 },
+  { ue: 27, gnb: 3, x: 704.9, y: 40.7 },
+  { ue: 28, gnb: 1, x: 442.6, y: 447.1 },
+  { ue: 29, gnb: 2, x: 789.4, y: 661.7 },
+  { ue: 30, gnb: 3, x: 454.1, y: 289.6 },
+  { ue: 31, gnb: 1, x: 225.0, y: 735.2 },
+  { ue: 32, gnb: 2, x: 596.4, y: 743.6 },
+  { ue: 33, gnb: 3, x: 338.7, y: 155.7 },
+  { ue: 34, gnb: 1, x: 293.4, y: 422.4 },
+  { ue: 35, gnb: 2, x: 863.0, y: 540.7 },
+  { ue: 36, gnb: 3, x: 576.2, y: 428.2 },
+  { ue: 37, gnb: 1, x: 278.6, y: 484.4 },
+  { ue: 38, gnb: 2, x: 719.4, y: 319.5 },
+  { ue: 39, gnb: 3, x: 714.9, y: 307.9 },
+  { ue: 40, gnb: 1, x: 385.7, y: 670.9 },
+  { ue: 41, gnb: 2, x: 570.6, y: 374.4 },
+  { ue: 42, gnb: 3, x: 662.9, y: 268.7 },
+  { ue: 43, gnb: 1, x: 171.2, y: 704.1 },
+  { ue: 44, gnb: 2, x: 597.2, y: 371.0 },
+  { ue: 45, gnb: 3, x: 250.1, y: 244.1 }
+];
+
 export default function App() {
   const [page, setPage] = useState("dashboard");
   const [loading, setLoading] = useState(false);
@@ -111,6 +165,13 @@ export default function App() {
   const [queueFilter, setQueueFilter] = useState("active_only"); // 'active_only' | 'all' | 'mitigated_only'
   const [actionNotification, setActionNotification] = useState(null);
   const [mitigatingId, setMitigatingId] = useState(null);
+
+  // Network Topology Interactive Controls
+  const [topologyTab, setTopologyTab] = useState("interactive"); // 'interactive' | 'diagram' | 'grid'
+  const [hoveredUe, setHoveredUe] = useState(null);
+  const [showCoverageZones, setShowCoverageZones] = useState(true);
+  const [showAccessLinks, setShowAccessLinks] = useState(true);
+  const [showBackhaulMesh, setShowBackhaulMesh] = useState(true);
 
   const fileInputRef = useRef(null);
 
@@ -2213,11 +2274,16 @@ export default function App() {
             <div style={{ background: "#0f172a", border: "1px solid #1e293b", borderRadius: "12px", padding: "24px" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "16px", marginBottom: "20px" }}>
                 <div>
-                  <h3 style={{ fontSize: "1.25rem", fontWeight: "700", margin: "0 0 6px 0", color: "#f8fafc" }}>
-                    Simulated 5G Multi-Cell Cellular Topology & UE Allocation
-                  </h3>
+                  <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "6px" }}>
+                    <div style={{ width: "32px", height: "32px", borderRadius: "8px", background: "rgba(56, 189, 248, 0.15)", border: "1px solid #38bdf8", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <Network size={18} color="#38bdf8" />
+                    </div>
+                    <h3 style={{ fontSize: "1.25rem", fontWeight: "700", margin: 0, color: "#f8fafc" }}>
+                      5G Multi-Cell Cellular Topology & Radio Coverage
+                    </h3>
+                  </div>
                   <p style={{ fontSize: "0.86rem", color: "#94a3b8", margin: 0 }}>
-                    3 Serving Base Stations (gNB-1, gNB-2, gNB-3) monitoring 45 User Equipments (UE-1 through UE-45) distributed across cellular sectors.
+                    Tri-sector macro-cellular deployment: 3 gNodeBs monitoring 45 active UEs across a 1000m x 850m radio coverage area with Xn backhaul coordination.
                   </p>
                 </div>
                 <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
@@ -2244,38 +2310,437 @@ export default function App() {
                 </div>
               </div>
 
-              {/* 5G Fleet Status Guide */}
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "14px", background: "#020617", padding: "14px", borderRadius: "8px", border: "1px solid #1e293b" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                  <div style={{ width: "12px", height: "12px", borderRadius: "3px", background: "#38bdf8" }} />
-                  <div>
-                    <div style={{ fontSize: "0.82rem", fontWeight: "700", color: "#93c5fd" }}>Nominal Cellular Traffic</div>
-                    <div style={{ fontSize: "0.72rem", color: "#64748b" }}>Baseline 5G user plane & signaling flows</div>
-                  </div>
+              {/* View Switcher Tabs & Layer Toggles */}
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "12px", borderTop: "1px solid #1e293b", paddingTop: "16px" }}>
+                <div style={{ display: "flex", gap: "8px", background: "#020617", padding: "4px", borderRadius: "8px", border: "1px solid #1e293b" }}>
+                  <button
+                    onClick={() => setTopologyTab("interactive")}
+                    style={{
+                      padding: "6px 14px",
+                      borderRadius: "6px",
+                      fontSize: "0.82rem",
+                      fontWeight: "600",
+                      cursor: "pointer",
+                      border: "none",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px",
+                      background: topologyTab === "interactive" ? "#1e293b" : "transparent",
+                      color: topologyTab === "interactive" ? "#38bdf8" : "#94a3b8"
+                    }}
+                  >
+                    <Network size={14} /> Interactive RF Map
+                  </button>
+                  <button
+                    onClick={() => setTopologyTab("diagram")}
+                    style={{
+                      padding: "6px 14px",
+                      borderRadius: "6px",
+                      fontSize: "0.82rem",
+                      fontWeight: "600",
+                      cursor: "pointer",
+                      border: "none",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px",
+                      background: topologyTab === "diagram" ? "#1e293b" : "transparent",
+                      color: topologyTab === "diagram" ? "#a855f7" : "#94a3b8"
+                    }}
+                  >
+                    <FileBarChart2 size={14} /> 300 DPI Export Diagram
+                  </button>
+                  <button
+                    onClick={() => setTopologyTab("grid")}
+                    style={{
+                      padding: "6px 14px",
+                      borderRadius: "6px",
+                      fontSize: "0.82rem",
+                      fontWeight: "600",
+                      cursor: "pointer",
+                      border: "none",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px",
+                      background: topologyTab === "grid" ? "#1e293b" : "transparent",
+                      color: topologyTab === "grid" ? "#10b981" : "#94a3b8"
+                    }}
+                  >
+                    <Layers3 size={14} /> Sector Fleet Grid
+                  </button>
                 </div>
-                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                  <div style={{ width: "12px", height: "12px", borderRadius: "3px", background: "#ef4444" }} />
-                  <div>
-                    <div style={{ fontSize: "0.82rem", fontWeight: "700", color: "#fca5a5" }}>Active Attack Target</div>
-                    <div style={{ fontSize: "0.72rem", color: "#64748b" }}>Flagged anomaly pending mitigation</div>
+
+                {topologyTab === "interactive" && (
+                  <div style={{ display: "flex", gap: "14px", alignItems: "center", flexWrap: "wrap" }}>
+                    <label style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "0.78rem", color: "#94a3b8", cursor: "pointer" }}>
+                      <input type="checkbox" checked={showCoverageZones} onChange={e => setShowCoverageZones(e.target.checked)} />
+                      Coverage Zones (280m)
+                    </label>
+                    <label style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "0.78rem", color: "#94a3b8", cursor: "pointer" }}>
+                      <input type="checkbox" checked={showBackhaulMesh} onChange={e => setShowBackhaulMesh(e.target.checked)} />
+                      Xn Backhaul Mesh
+                    </label>
+                    <label style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "0.78rem", color: "#94a3b8", cursor: "pointer" }}>
+                      <input type="checkbox" checked={showAccessLinks} onChange={e => setShowAccessLinks(e.target.checked)} />
+                      Access Links
+                    </label>
                   </div>
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                  <div style={{ width: "12px", height: "12px", borderRadius: "3px", background: "#10b981" }} />
-                  <div>
-                    <div style={{ fontSize: "0.82rem", fontWeight: "700", color: "#86efac" }}>Contained / Protected</div>
-                    <div style={{ fontSize: "0.72rem", color: "#64748b" }}>Automated response rule successfully enforced</div>
-                  </div>
-                </div>
+                )}
               </div>
             </div>
 
-            {/* 3 gNodeB Multi-Cell Sector Grid */}
+            {/* TAB 1: INTERACTIVE SVG CELLULAR RF TOPOLOGY MAP */}
+            {topologyTab === "interactive" && (
+              <div style={{ background: "#0f172a", border: "1px solid #1e293b", borderRadius: "12px", padding: "20px", display: "flex", flexDirection: "column", gap: "16px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "12px" }}>
+                  <div>
+                    <h4 style={{ margin: "0 0 4px 0", fontSize: "1rem", color: "#f8fafc" }}>
+                      Interactive Radio Frequency (RF) Multi-Cell Spatial Map
+                    </h4>
+                    <p style={{ margin: 0, fontSize: "0.78rem", color: "#64748b" }}>
+                      Hover over any UE node to view live metrics. Click to inspect threat sequence. Real-time Cartesian coordinate mapping: 1000m × 850m.
+                    </p>
+                  </div>
+
+                  {/* Canvas Legend */}
+                  <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", fontSize: "0.75rem" }}>
+                    <span style={{ display: "flex", alignItems: "center", gap: "5px", color: "#38bdf8" }}>
+                      <span style={{ width: "10px", height: "10px", borderRadius: "50%", background: "#38bdf8" }} /> Sector A (gNB-1)
+                    </span>
+                    <span style={{ display: "flex", alignItems: "center", gap: "5px", color: "#a855f7" }}>
+                      <span style={{ width: "10px", height: "10px", borderRadius: "50%", background: "#a855f7" }} /> Sector B (gNB-2)
+                    </span>
+                    <span style={{ display: "flex", alignItems: "center", gap: "5px", color: "#10b981" }}>
+                      <span style={{ width: "10px", height: "10px", borderRadius: "50%", background: "#10b981" }} /> Sector C (gNB-3)
+                    </span>
+                    <span style={{ display: "flex", alignItems: "center", gap: "5px", color: "#ef4444" }}>
+                      <span style={{ width: "10px", height: "10px", borderRadius: "50%", background: "#ef4444", boxShadow: "0 0 6px #ef4444" }} /> Active Threat
+                    </span>
+                    <span style={{ display: "flex", alignItems: "center", gap: "5px", color: "#f59e0b" }}>
+                      <span style={{ width: "16px", height: "2px", background: "#f59e0b" }} /> Xn Backhaul
+                    </span>
+                  </div>
+                </div>
+
+                {/* SVG Visual Canvas */}
+                <div style={{ position: "relative", width: "100%", overflow: "hidden", borderRadius: "10px", background: "#060a17", border: "1px solid #1e293b" }}>
+                  <svg
+                    viewBox="0 0 1000 850"
+                    style={{ width: "100%", height: "auto", display: "block" }}
+                  >
+                    <defs>
+                      {/* Grid Pattern */}
+                      <pattern id="grid-pattern" width="100" height="100" patternUnits="userSpaceOnUse">
+                        <path d="M 100 0 L 0 0 0 100" fill="none" stroke="#141e33" strokeWidth="1" strokeDasharray="3,3" />
+                      </pattern>
+
+                      {/* gNB-1 Radial Glow */}
+                      <radialGradient id="gnb1-glow" cx="50%" cy="50%" r="50%">
+                        <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.18" />
+                        <stop offset="70%" stopColor="#38bdf8" stopOpacity="0.05" />
+                        <stop offset="100%" stopColor="#38bdf8" stopOpacity="0.0" />
+                      </radialGradient>
+
+                      {/* gNB-2 Radial Glow */}
+                      <radialGradient id="gnb2-glow" cx="50%" cy="50%" r="50%">
+                        <stop offset="0%" stopColor="#a855f7" stopOpacity="0.18" />
+                        <stop offset="70%" stopColor="#a855f7" stopOpacity="0.05" />
+                        <stop offset="100%" stopColor="#a855f7" stopOpacity="0.0" />
+                      </radialGradient>
+
+                      {/* gNB-3 Radial Glow */}
+                      <radialGradient id="gnb3-glow" cx="50%" cy="50%" r="50%">
+                        <stop offset="0%" stopColor="#10b981" stopOpacity="0.18" />
+                        <stop offset="70%" stopColor="#10b981" stopOpacity="0.05" />
+                        <stop offset="100%" stopColor="#10b981" stopOpacity="0.0" />
+                      </radialGradient>
+                    </defs>
+
+                    {/* Background Grid */}
+                    <rect width="1000" height="850" fill="url(#grid-pattern)" />
+
+                    {/* Axis Labels */}
+                    <g fill="#475569" fontSize="11" fontFamily="Helvetica, sans-serif">
+                      {[100, 200, 300, 400, 500, 600, 700, 800, 900].map(x => (
+                        <text key={`x-${x}`} x={x} y="842" textAnchor="middle">{x}m</text>
+                      ))}
+                      {[100, 200, 300, 400, 500, 600, 700, 800].map(y => (
+                        <text key={`y-${y}`} x="10" y={850 - y + 4} textAnchor="start">{y}m</text>
+                      ))}
+                    </g>
+
+                    {/* 1. gNodeB Cell Coverage Circles (280m radius) */}
+                    {showCoverageZones && GNB_BASE_STATIONS.map((gnb, idx) => {
+                      const svgY = 850 - gnb.y;
+                      const glowId = idx === 0 ? "gnb1-glow" : (idx === 1 ? "gnb2-glow" : "gnb3-glow");
+                      return (
+                        <g key={`cov-${gnb.id}`}>
+                          <circle
+                            cx={gnb.x}
+                            cy={svgY}
+                            r="280"
+                            fill={`url(#${glowId})`}
+                            stroke={gnb.color}
+                            strokeWidth="1.4"
+                            strokeDasharray="5,4"
+                            opacity="0.8"
+                          />
+                        </g>
+                      );
+                    })}
+
+                    {/* 2. Inter-gNB Xn Mesh Backhaul Links */}
+                    {showBackhaulMesh && (
+                      <g>
+                        <line x1="250" y1={850 - 550} x2="750" y2={850 - 550} stroke="#f59e0b" strokeWidth="2.4" strokeDasharray="8,6" opacity="0.8" />
+                        <line x1="750" y1={850 - 550} x2="500" y2={850 - 200} stroke="#f59e0b" strokeWidth="2.4" strokeDasharray="8,6" opacity="0.8" />
+                        <line x1="500" y1={850 - 200} x2="250" y2={850 - 550} stroke="#f59e0b" strokeWidth="2.4" strokeDasharray="8,6" opacity="0.8" />
+                        
+                        {/* Backhaul Mesh Badge */}
+                        <g transform="translate(500, 280)">
+                          <rect x="-95" y="-12" width="190" height="24" rx="12" fill="#0f172a" stroke="#f59e0b" strokeWidth="1.2" opacity="0.9" />
+                          <text x="0" y="4" fill="#fbbf24" fontSize="10" fontWeight="bold" textAnchor="middle">
+                            5G Xn Mesh Backhaul (FedAvg)
+                          </text>
+                        </g>
+                      </g>
+                    )}
+
+                    {/* 3. Wireless 5G-NR Access Links (UE -> Serving gNB) */}
+                    {showAccessLinks && UE_TOPOLOGY_COORDS.map(u => {
+                      const gnb = GNB_BASE_STATIONS[u.gnb - 1];
+                      const gnbSvgY = 850 - gnb.y;
+                      const ueSvgY = 850 - u.y;
+                      const isHovered = hoveredUe?.ue === u.ue;
+
+                      return (
+                        <line
+                          key={`link-${u.ue}`}
+                          x1={gnb.x}
+                          y1={gnbSvgY}
+                          x2={u.x}
+                          y2={ueSvgY}
+                          stroke={isHovered ? "#ffffff" : gnb.color}
+                          strokeWidth={isHovered ? 2.0 : 0.8}
+                          strokeOpacity={isHovered ? 0.95 : 0.22}
+                        />
+                      );
+                    })}
+
+                    {/* 4. User Equipments (45 Active Cellular Nodes) */}
+                    {UE_TOPOLOGY_COORDS.map(u => {
+                      const gnb = GNB_BASE_STATIONS[u.gnb - 1];
+                      const ueSvgY = 850 - u.y;
+                      const ueSeqs = rawSequences.filter(s => s.ue_id === u.ue);
+                      const isMalicious = ueSeqs.some(s => s.prediction === "Malicious" && !s.is_mitigated);
+                      const isMitigated = ueSeqs.some(s => s.is_mitigated);
+                      const activeThreatSeq = ueSeqs.find(s => s.prediction === "Malicious" && !s.is_mitigated);
+                      const isHovered = hoveredUe?.ue === u.ue;
+
+                      const nodeColor = isMalicious ? "#ef4444" : (isMitigated ? "#10b981" : gnb.color);
+
+                      return (
+                        <g
+                          key={`ue-node-${u.ue}`}
+                          style={{ cursor: "pointer" }}
+                          onMouseEnter={() => setHoveredUe({ ...u, sector: gnb.sector, isMalicious, isMitigated, activeThreatSeq })}
+                          onMouseLeave={() => setHoveredUe(null)}
+                          onClick={() => {
+                            if (activeThreatSeq) handleSelectSequence(activeThreatSeq);
+                            else if (ueSeqs.length > 0) handleSelectSequence(ueSeqs[0]);
+                          }}
+                        >
+                          {/* Pulsing ring for active attacks */}
+                          {isMalicious && (
+                            <circle
+                              cx={u.x}
+                              cy={ueSvgY}
+                              r={isHovered ? 18 : 14}
+                              fill="none"
+                              stroke="#ef4444"
+                              strokeWidth="2"
+                              opacity="0.8"
+                            />
+                          )}
+
+                          {/* Hover highlight circle */}
+                          {isHovered && !isMalicious && (
+                            <circle
+                              cx={u.x}
+                              cy={ueSvgY}
+                              r="15"
+                              fill="none"
+                              stroke={nodeColor}
+                              strokeWidth="1.5"
+                              strokeDasharray="2,2"
+                              opacity="0.9"
+                            />
+                          )}
+
+                          {/* Core UE circle */}
+                          <circle
+                            cx={u.x}
+                            cy={ueSvgY}
+                            r={isHovered ? 8 : 6.5}
+                            fill={nodeColor}
+                            stroke="#ffffff"
+                            strokeWidth={isHovered ? 2.0 : 1.2}
+                          />
+
+                          {/* UE Label */}
+                          <text
+                            x={u.x + 9}
+                            y={ueSvgY - 6}
+                            fill={isMalicious ? "#fca5a5" : "#cbd5e1"}
+                            fontSize={isHovered ? 11 : 8.5}
+                            fontWeight={isHovered || isMalicious ? "bold" : "normal"}
+                            fontFamily="Helvetica, sans-serif"
+                          >
+                            UE-{u.ue}
+                          </text>
+                        </g>
+                      );
+                    })}
+
+                    {/* 5. Base Station Towers (Prominent Hexagram Icons) */}
+                    {GNB_BASE_STATIONS.map(gnb => {
+                      const svgY = 850 - gnb.y;
+                      return (
+                        <g key={`tower-${gnb.id}`} transform={`translate(${gnb.x}, ${svgY})`}>
+                          {/* Tower Base Pulse */}
+                          <circle r="22" fill={gnb.color} fillOpacity="0.2" stroke={gnb.color} strokeWidth="1.5" />
+                          <circle r="12" fill="#0f172a" stroke="#ffffff" strokeWidth="2" />
+                          <circle r="5" fill={gnb.color} />
+
+                          {/* Tower Badge / Details */}
+                          <g transform="translate(0, -32)">
+                            <rect x="-56" y="-13" width="112" height="24" rx="6" fill="#0f172a" stroke={gnb.color} strokeWidth="1.5" opacity="0.95" />
+                            <text x="0" y="3" fill="#ffffff" fontSize="11" fontWeight="bold" textAnchor="middle">
+                              {gnb.id} ({gnb.sector})
+                            </text>
+                          </g>
+
+                          <text x="0" y="38" fill="#94a3b8" fontSize="9" fontWeight="600" textAnchor="middle">
+                            ({gnb.x}m, {gnb.y}m) | 15 UEs
+                          </text>
+                        </g>
+                      );
+                    })}
+                  </svg>
+
+                  {/* Hover Floating HUD Card */}
+                  {hoveredUe && (
+                    <div style={{
+                      position: "absolute",
+                      bottom: "16px",
+                      left: "16px",
+                      background: "rgba(15, 23, 42, 0.95)",
+                      backdropFilter: "blur(8px)",
+                      border: `1px solid ${hoveredUe.isMalicious ? "#ef4444" : "#38bdf8"}`,
+                      borderRadius: "8px",
+                      padding: "12px 16px",
+                      color: "#f8fafc",
+                      fontSize: "0.82rem",
+                      boxShadow: "0 8px 24px rgba(0, 0, 0, 0.5)",
+                      pointerEvents: "none"
+                    }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
+                        <span style={{ fontWeight: "700", fontSize: "0.95rem", color: "#38bdf8" }}>UE-{hoveredUe.ue}</span>
+                        <span style={{ fontSize: "0.72rem", color: "#94a3b8" }}>Serving: {hoveredUe.sector} (gNB-{hoveredUe.gnb})</span>
+                      </div>
+                      <div style={{ fontSize: "0.74rem", color: "#cbd5e1" }}>
+                        Coordinates: ({hoveredUe.x}m, {hoveredUe.y}m) | Status:{" "}
+                        <strong style={{ color: hoveredUe.isMalicious ? "#ef4444" : (hoveredUe.isMitigated ? "#10b981" : "#38bdf8") }}>
+                          {hoveredUe.isMalicious ? `Active Attack: ${hoveredUe.activeThreatSeq?.predicted_attack_type || 'Malicious'}` : (hoveredUe.isMitigated ? "Contained" : "Nominal Cellular Flow")}
+                        </strong>
+                      </div>
+                      <div style={{ fontSize: "0.7rem", color: "#64748b", marginTop: "4px" }}>
+                        Click UE node to select and inspect flow sequence
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* TAB 2: 300 DPI RF SIMULATION EXPORT DIAGRAM */}
+            {topologyTab === "diagram" && (
+              <div style={{ background: "#0f172a", border: "1px solid #1e293b", borderRadius: "12px", padding: "24px", display: "flex", flexDirection: "column", gap: "20px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "12px" }}>
+                  <div>
+                    <h4 style={{ margin: "0 0 4px 0", fontSize: "1.1rem", color: "#f8fafc" }}>
+                      Publication-Grade 300 DPI 5G Cellular Topology Diagram
+                    </h4>
+                    <p style={{ margin: 0, fontSize: "0.82rem", color: "#94a3b8" }}>
+                      Generated and exported directly from MATLAB 5G RF Network Simulation (<code style={{ color: "#38bdf8" }}>outputs/5g_network_topology_3gnb_45ue.png</code>).
+                    </p>
+                  </div>
+                  <a
+                    href={`${API_BASE}/api/ids/topology-diagram`}
+                    download="5g_network_topology_3gnb_45ue.png"
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px",
+                      background: "#2563eb",
+                      color: "#ffffff",
+                      padding: "8px 16px",
+                      borderRadius: "6px",
+                      fontSize: "0.82rem",
+                      fontWeight: "600",
+                      textDecoration: "none",
+                      border: "none",
+                      boxShadow: "0 4px 12px rgba(37, 99, 235, 0.3)"
+                    }}
+                  >
+                    <Download size={15} /> Download 300 DPI PNG
+                  </a>
+                </div>
+
+                {/* High-Resolution Diagram Preview */}
+                <div style={{ borderRadius: "8px", overflow: "hidden", border: "1px solid #334155", background: "#020617", textAlign: "center", padding: "8px" }}>
+                  <img
+                    src={`${API_BASE}/api/ids/topology-diagram`}
+                    alt="5G Wireless Multi-Cell Network Topology Diagram"
+                    style={{ maxWidth: "100%", height: "auto", borderRadius: "6px", display: "inline-block" }}
+                    onError={(e) => {
+                      e.target.style.display = "none";
+                      if (e.target.nextSibling) e.target.nextSibling.style.display = "block";
+                    }}
+                  />
+                  <div style={{ display: "none", padding: "40px", color: "#94a3b8", fontSize: "0.9rem" }}>
+                    <AlertCircle size={28} color="#f59e0b" style={{ margin: "0 auto 12px auto" }} />
+                    Topology diagram export available at <code style={{ color: "#38bdf8" }}>outputs/5g_network_topology_3gnb_45ue.png</code>.
+                  </div>
+                </div>
+
+                {/* Technical Topology Specifications */}
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "12px", background: "#020617", padding: "16px", borderRadius: "8px", border: "1px solid #1e293b" }}>
+                  <div>
+                    <span style={{ fontSize: "0.72rem", color: "#64748b" }}>CELLULAR SERVICE AREA</span>
+                    <div style={{ fontSize: "0.95rem", fontWeight: "700", color: "#f8fafc" }}>1000m × 850m</div>
+                  </div>
+                  <div>
+                    <span style={{ fontSize: "0.72rem", color: "#64748b" }}>CELL COVERAGE RADIUS</span>
+                    <div style={{ fontSize: "0.95rem", fontWeight: "700", color: "#38bdf8" }}>280 Meters (Overlap Handover)</div>
+                  </div>
+                  <div>
+                    <span style={{ fontSize: "0.72rem", color: "#64748b" }}>BACKHAUL COORDINATION</span>
+                    <div style={{ fontSize: "0.95rem", fontWeight: "700", color: "#f59e0b" }}>3GPP Xn-C / Xn-U Mesh</div>
+                  </div>
+                  <div>
+                    <span style={{ fontSize: "0.72rem", color: "#64748b" }}>RADIO INTERFACE</span>
+                    <div style={{ fontSize: "0.95rem", fontWeight: "700", color: "#10b981" }}>5G-NR Uu Air Interface</div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* TAB 3 or ALWAYS VISIBLE: 3 gNodeB Multi-Cell Sector Grid */}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(360px, 1fr))", gap: "20px" }}>
               {[
-                { id: "gNB-1", sector: "Cell Sector A", pos: "(250m, 500m)", color: "#38bdf8", ues: [1, 4, 7, 10, 13, 16, 19, 22, 25, 28, 31, 34, 37, 40, 43] },
-                { id: "gNB-2", sector: "Cell Sector B", pos: "(750m, 500m)", color: "#a855f7", ues: [2, 5, 8, 11, 14, 17, 20, 23, 26, 29, 32, 35, 38, 41, 44] },
-                { id: "gNB-3", sector: "Cell Sector C", pos: "(500m, 850m)", color: "#10b981", ues: [3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36, 39, 42, 45] }
+                { id: "gNB-1", sector: "Cell Sector A", pos: "(250m, 550m)", color: "#38bdf8", ues: [1, 4, 7, 10, 13, 16, 19, 22, 25, 28, 31, 34, 37, 40, 43] },
+                { id: "gNB-2", sector: "Cell Sector B", pos: "(750m, 550m)", color: "#a855f7", ues: [2, 5, 8, 11, 14, 17, 20, 23, 26, 29, 32, 35, 38, 41, 44] },
+                { id: "gNB-3", sector: "Cell Sector C", pos: "(500m, 200m)", color: "#10b981", ues: [3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36, 39, 42, 45] }
               ].map(gnb => {
                 const gnbSeqs = rawSequences.filter(s => s.gnb_id === gnb.id || (!s.gnb_id && gnb.ues.includes(s.ue_id)));
                 const gnbMalicious = gnbSeqs.filter(s => s.prediction === "Malicious" && !s.is_mitigated).length;

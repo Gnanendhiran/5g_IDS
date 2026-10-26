@@ -63,7 +63,7 @@ function visualize_5g_network_topology()
                  'Color', [0.06 0.09 0.16], ... % Deep SOC Dark Mode (#0f172a)
                  'Units', 'pixels', ...
                  'Position', [100, 100, 1280, 850], ...
-                 'Visible', 'on');
+                 'Visible', 'off');
 
     ax = axes('Parent', fig);
     hold(ax, 'on');
@@ -244,10 +244,10 @@ function visualize_5g_network_topology()
     fprintf('  gNodeB ID | Sector Name | Position    | Cell Radius | Serving UEs\n');
     fprintf('  ----------+-------------+-------------+-------------+-------------\n');
     for g = 1:3
-        fprintf('  %-9s | %-11s | (%3dm, %3dm) | %4dm      | 15 UEs (5 eMBB, 5 URLLC, 5 mMTC)\n', ...
-            gnb_names{g}, gnb_sectors{g}, gnb_pos(g, 1), gnb_pos(g, 2), cell_radius);
+        fprintf('  %-9s | %-11s | (%3dm, %3dm) | %4dm      | 15 UEs (%s)\n', ...
+            gnb_names{g}, gnb_sectors{g}, gnb_pos(g, 1), gnb_pos(g, 2), cell_radius, gnb_sectors{g});
     end
-    fprintf('  Total UEs: 45 (eMBB: 15, URLLC: 15, mMTC: 15) across 3 gNodeBs.\n');
+    fprintf('  Total UEs: 45 across 3 gNodeBs and 3 Cell Sectors.\n');
     fprintf('=======================================================================\n\n');
 end
 
