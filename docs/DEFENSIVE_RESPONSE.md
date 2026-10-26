@@ -5,7 +5,7 @@
 | Attack Category | Recommended Action | Description | Default Parameters | Approval Required |
 |---|---|---|---|---|
 | **UDPFlood** | `ENFORCE_RATE_LIMIT` | Throttles offending UE transmission rate on gNB radio scheduler | `max_bitrate_kbps: 50`, `duration: 300s` | **Yes** |
-| **HTTPFlood** | `QUARANTINE_UE` | Detaches UE from standard eMBB slice to isolated quarantine VLAN | `quarantine_vlan: 999`, `duration: 600s` | **Yes** |
+| **HTTPFlood** | `QUARANTINE_UE` | Isolates abusive application flow to quarantine inspection VLAN | `quarantine_vlan: 999`, `duration: 600s` | **Yes** |
 | **SlowrateDoS** | `TERMINATE_HANGING_SESSIONS` | Reduces TCP keepalive timeout to 5s and flushes lingering states | `idle_timeout_sec: 5`, `max_sessions: 2` | No |
 | **SYNFlood** | `ENABLE_SYN_COOKIES` | Activates cryptographic SYN cookies on serving gNB gateway | `syn_cookie_threshold: 100` | No |
 | **ICMPFlood** | `DROP_ICMP_BURSTS` | Drops ICMP ingress bursts above 10 pps | `max_icmp_pps: 10` | No |

@@ -10,7 +10,7 @@
 % Architecture & Topology Specifications:
 %   - Fleet: Exactly 45 User Equipments (UE-1 to UE-45)
 %   - Infrastructure: Exactly 3 gNodeBs (gNB-1, gNB-2, gNB-3)
-%   - Network Slices: eMBB (UE 1-15), URLLC (UE 16-30), mMTC (UE 31-45)
+%   - Cell Sectors: Sector-Alpha (UE 1-15), Sector-Beta (UE 16-30), Sector-Gamma (UE 31-45)
 %   - Normal Baseline: Exactly 10.00% Benign traffic (1,000 flows / 40 sequences of 25)
 %   - Telemetry Schema: 15 standard fields calibrated to 5G-NIDD benchmark contract
 
@@ -125,7 +125,6 @@ function generate_5g_simulated_datasets()
     pool_s5 = pool_s5(randperm(numel(pool_s5)));
     seq_s5 = build_interleaved_seqs(pool_s5, num_seq);
     export_dataset(seq_s5, profiles, rows_per_seq, 'live_5g_sim_5_iot_botnet_flood.csv', dir_python, dir_matlab);
-    export_dataset(seq_s5, profiles, rows_per_seq, 'live_5g_sim_5_iot_sensor_slice_burst.csv', dir_python, dir_matlab);
 
     %% Scenario 6: Coordinated Multi-Stage APT Campaign (All 8 attacks distinct)
     fprintf('\n[6/6] Generating Scenario 6: Coordinated APT Campaign (Distinct counts)...\n');
@@ -148,7 +147,7 @@ function generate_5g_simulated_datasets()
     fprintf('SUCCESS: All 6 Simulation Datasets Generated & Calibrated to 5G-NIDD!\n');
     fprintf('  - Target Directory: %s\n', dir_python);
     fprintf('  - 10,000 flows per CSV (400 sequences, 25 flows/seq)\n');
-    fprintf('  - Fleet: 45 UEs, 3 gNodeBs, 3 Slices (eMBB, URLLC, mMTC)\n');
+    fprintf('  - Fleet: 45 UEs, 3 gNodeBs, 3 Cell Sectors (Alpha, Beta, Gamma)\n');
     fprintf('  - Normal Baseline: Exactly 10.00%% Benign flows in each dataset\n');
     fprintf('=======================================================================\n\n');
 end
@@ -175,7 +174,7 @@ function export_dataset(seq_attacks, profiles, rows_per_seq, filename, dir1, dir
     Timestamps = strings(total_rows, 1);
     UEIDs = zeros(total_rows, 1);
     gNB_IDs = strings(total_rows, 1);
-    SliceTypes = strings(total_rows, 1);
+    Sectors = strings(total_rows, 1);
     Protocols = strings(total_rows, 1);
     Durations = zeros(total_rows, 1);
     PacketCounts = zeros(total_rows, 1);
@@ -199,13 +198,13 @@ function export_dataset(seq_attacks, profiles, rows_per_seq, filename, dir1, dir
         ue_id = mod(s - 1, 45) + 1;
         gnb_id = sprintf('gNB-%d', mod(ue_id - 1, 3) + 1);
 
-        % 5G Network Slice Mapping
+        % 5G Multi-Cell Sector Mapping
         if ue_id <= 15
-            slice_type = 'eMBB';
+            sector_name = 'Sector-Alpha';
         elseif ue_id <= 30
-            slice_type = 'URLLC';
+            sector_name = 'Sector-Beta';
         else
-            slice_type = 'mMTC';
+            sector_name = 'Sector-Gamma';
         end
 
         seq_time = base_time + seconds((s - 1) * 1.5);
@@ -216,7 +215,7 @@ function export_dataset(seq_attacks, profiles, rows_per_seq, filename, dir1, dir
             Timestamps(row_cursor) = datestr(curr_time, 'yyyy-mm-dd HH:MM:SS.FFF');
             UEIDs(row_cursor) = ue_id;
             gNB_IDs(row_cursor) = gnb_id;
-            SliceTypes(row_cursor) = slice_type;
+            Sectors(row_cursor) = sector_name;
             Protocols(row_cursor) = prof.proto;
 
             % Calibrated feature synthesis
@@ -244,11 +243,11 @@ function export_dataset(seq_attacks, profiles, rows_per_seq, filename, dir1, dir
         end
     end
 
-    T = table(Timestamps, UEIDs, gNB_IDs, SliceTypes, Protocols, ...
+    T = table(Timestamps, UEIDs, gNB_IDs, Sectors, Protocols, ...
         Durations, PacketCounts, BytesCol, PacketRates, MeanPacketSizes, ...
         MinPacketSizes, MaxPacketSizes, LossRates, TrafficTypes, AttackTypes, ...
         'VariableNames', { ...
-            'Timestamp', 'UEID', 'gNB_ID', 'SliceType', 'Protocol', ...
+            'Timestamp', 'UEID', 'gNB_ID', 'Sector', 'Protocol', ...
             'Duration', 'PacketCount', 'Bytes', 'PacketRate', 'MeanPacketSize', ...
             'MinPacketSize', 'MaxPacketSize', 'LossRate', 'TrafficType', 'AttackType' ...
         });

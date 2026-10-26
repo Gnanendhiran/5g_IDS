@@ -351,8 +351,7 @@ class IDSEngine:
                 pkt_count = int(sub_live["PacketCount"].sum()) if "PacketCount" in sub_live.columns else (int(sub_live["TotPkts"].sum()) if "TotPkts" in sub_live.columns else 1250)
                 dur_val = round(float(sub_live["Duration"].iloc[-1]), 4) if "Duration" in sub_live.columns else (round(float(sub_live["Dur"].iloc[-1]), 4) if "Dur" in sub_live.columns else 1.25)
                 proto_val = str(sub_live["Protocol"].iloc[-1]) if "Protocol" in sub_live.columns else ("UDP" if "UDP" in attack_type else "TCP")
-                slice_val = str(sub_live["SliceType"].iloc[-1]) if "SliceType" in sub_live.columns else ("eMBB" if int(ue_id) <= 15 else ("URLLC" if int(ue_id) <= 30 else "mMTC"))
-                where_detected = f"{gnb_id} (Sector Alpha) -> UE-{ue_id} on {slice_val} Slice"
+                where_detected = f"{gnb_id} (Sector Alpha) -> UE-{ue_id}"
                 how_mitigated = response_rec["description"]
 
                 seq_res = {
@@ -364,7 +363,6 @@ class IDSEngine:
                     "packet_count": pkt_count,
                     "duration": dur_val,
                     "protocol": proto_val,
-                    "slice_type": slice_val,
                     "where_detected": where_detected,
                     "how_mitigated": how_mitigated,
                     "when_prevented": None,
@@ -465,8 +463,7 @@ class IDSEngine:
             spatial_w=seq_meta.get("spatial_attention", 15.0),
             temporal_w=seq_meta.get("temporal_attention", 85.0),
             recent_alert_count=sum(1 for r in self.cached_results if r["ue_id"] == seq_meta["ue_id"] and r["prediction"] == "Malicious"),
-            traffic_rate_ratio=1.5 if seq_meta["prediction"] == "Malicious" else 1.0,
-            slice_type=seq_meta.get("slice_type", "eMBB" if seq_meta["ue_id"] <= 15 else ("URLLC" if seq_meta["ue_id"] <= 30 else "mMTC"))
+            traffic_rate_ratio=1.5 if seq_meta["prediction"] == "Malicious" else 1.0
         )
         investigation["sequence_id"] = sequence_id
         investigation["ground_truth"] = seq_meta.get("ground_truth", "Unknown")

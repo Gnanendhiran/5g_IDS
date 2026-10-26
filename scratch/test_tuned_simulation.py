@@ -50,7 +50,6 @@ rows = []
 for s, att in enumerate(seq_labels):
     ue_id = (s % 45) + 1
     gnb_id = f"gNB-{((ue_id - 1) % 3) + 1}"
-    slice_type = "eMBB" if ue_id <= 15 else ("URLLC" if ue_id <= 30 else "mMTC")
     
     for step in range(25):
         if att == 'Benign':
@@ -148,7 +147,6 @@ for s, att in enumerate(seq_labels):
             'Timestamp': '2026-10-14 10:00:00.000',
             'UEID': ue_id,
             'gNB_ID': gnb_id,
-            'SliceType': slice_type,
             'Protocol': proto,
             'Duration': round(dur, 4),
             'PacketCount': pkts,

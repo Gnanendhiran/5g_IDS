@@ -9,7 +9,7 @@ Streamlined to the three core SOC agents:
      - Calls ExplainableAIEngine.explain_sequence() ONCE per incident to avoid duplicate gradient compute.
   2. Risk & Impact Analyst:
      - Calculates 4-pillar priority score (0-100), severity tier, persistence, and traffic anomaly.
-     - Evaluates 5G network slice blast radius (eMBB, URLLC, mMTC) and radio link degradation.
+     - Evaluates 5G network blast radius and radio link degradation.
      - Provides clear technical rationale on why the alert is urgent.
   3. SOC Response Advisor:
      - Recommends attack-specific, evidence-based mitigation playbooks.
@@ -47,9 +47,9 @@ class AttackInvestigatorAgent:
         confidence: float,
         ue_id: int,
         gnb_id: str,
-        slice_type: str = "eMBB",
         spatial_w: float = 15.0,
-        temporal_w: float = 85.0
+        temporal_w: float = 85.0,
+        **kwargs
     ) -> Dict[str, Any]:
         # SINGLE call to explain_sequence() for both feature saliency and temporal dynamics
         raw_xai = self.xai.explain_sequence(model, sequence, target_class_idx=target_class_idx, top_k=5)
@@ -87,13 +87,13 @@ class AttackInvestigatorAgent:
 
         if predicted_attack_type == "Benign":
             explanation_statement = (
-                f"Traffic from UE {ue_id} on {gnb_id} conforms to standard 5G {slice_type} operational profiles "
+                f"Traffic from UE {ue_id} on {gnb_id} conforms to standard 5G operational profiles "
                 f"({confidence*100:.1f}% confidence). Metric deviations across all 5 temporal windows remain within normal thresholds."
             )
         else:
             explanation_statement = (
-                f"Detected {predicted_attack_type} pattern with {confidence*100:.1f}% confidence targeting UE {ue_id} on {gnb_id} "
-                f"({slice_type} slice). Primary mathematical drivers are {top_str}. Activity peaked in temporal window "
+                f"Detected {predicted_attack_type} pattern with {confidence*100:.1f}% confidence targeting UE {ue_id} on {gnb_id}. "
+                f"Primary mathematical drivers are {top_str}. Activity peaked in temporal window "
                 f"t_{peak_idx+1} of 5 ({peak_score*100:.1f}% relative contribution) following a '{trajectory}' profile."
             )
 
@@ -104,7 +104,6 @@ class AttackInvestigatorAgent:
             "confidence": round(confidence * 100.0, 2),
             "affected_ue": ue_id,
             "serving_gnb": gnb_id,
-            "slice_type": slice_type,
             "top_features": top_features,
             "temporal_windows": window_attributions,
             "peak_window": peak_idx + 1,
@@ -127,7 +126,7 @@ class RiskImpactAnalystAgent:
     """
     Agent 2: Risk & Impact Analyst.
     Evaluates operational risk score (0-100), severity tier, device persistence,
-    traffic rate anomaly ratio, specific 5G slice blast radius, and urgency rationale.
+    traffic rate anomaly ratio, 5G network blast radius, and urgency rationale.
     """
     def __init__(self, prioritizer: ThreatPrioritizer):
         self.name = "Risk & Impact Analyst"
@@ -141,7 +140,7 @@ class RiskImpactAnalystAgent:
         is_malicious: bool,
         recent_alert_count: int = 1,
         traffic_rate_ratio: float = 1.0,
-        slice_type: str = "eMBB"
+        **kwargs
     ) -> Dict[str, Any]:
         res = self.prioritizer.calculate_priority(
             predicted_attack_type=predicted_attack_type,
@@ -151,16 +150,22 @@ class RiskImpactAnalystAgent:
             traffic_rate_ratio=traffic_rate_ratio
         )
 
-        # Slice-specific service impact analysis
-        if slice_type == "URLLC":
-            slice_impact = "Ultra-Reliable Low-Latency SLA Breach: Risk of mission-critical packet delay exceeding 1ms latency budget."
+        # Attack-specific service impact analysis across the 5G cellular network
+        if predicted_attack_type in ["UDPFlood", "ICMPFlood"]:
+            service_impact = "Volumetric Radio Exhaustion: gNodeB channel saturation and bandwidth starvation for co-located UEs."
             blast_severity = "Critical"
-        elif slice_type == "mMTC":
-            slice_impact = "Massive IoT Core Congestion: Radio Resource Control (RRC) signaling buffer congestion across IoT cluster."
+        elif predicted_attack_type in ["HTTPFlood", "SlowrateDoS"]:
+            service_impact = "Application & State Table Depletion: Core network service starvation and connection buffer exhaustion."
+            blast_severity = "High"
+        elif predicted_attack_type in ["SYNFlood"]:
+            service_impact = "Protocol State Exhaustion: TCP embryonic connection queue overload on serving gateway."
+            blast_severity = "High" if res["priority_level"] in ["Critical", "High"] else "Moderate"
+        elif predicted_attack_type in ["SYNScan", "TCPConnectScan", "UDPScan"]:
+            service_impact = "Endpoint Discovery & Mapping: Active reconnaissance targeting 5G control and user plane endpoints."
             blast_severity = "Moderate"
         else:
-            slice_impact = "Mobile Broadband Bandwidth Degradation: Downlink/Uplink throughput reduction for co-located UEs on serving cell."
-            blast_severity = "High" if res["priority_level"] in ["Critical", "High"] else "Low"
+            service_impact = "Nominal Operation: Telemetry indicators conform to baseline 5G radio traffic specifications."
+            blast_severity = "Low"
 
         # Persistence assessment
         if recent_alert_count > 3:
@@ -184,7 +189,7 @@ class RiskImpactAnalystAgent:
         elif res["priority_score"] >= 80:
             urgency_why = (
                 f"Urgent Action Required: Score {res['priority_score']}/100. High base attack severity coupled with "
-                f"{confidence*100:.1f}% confidence threatens {slice_type} slice availability and serving gNodeB stability."
+                f"{confidence*100:.1f}% confidence threatens serving gNodeB stability and radio channel availability."
             )
         elif res["priority_score"] >= 50:
             urgency_why = (
@@ -204,9 +209,8 @@ class RiskImpactAnalystAgent:
             "recent_alert_count": recent_alert_count,
             "traffic_anomaly": anomaly_desc,
             "traffic_rate_ratio": traffic_rate_ratio,
-            "possible_service_impact": slice_impact,
-            "slice_blast_severity": blast_severity,
-            "slice_type": slice_type,
+            "possible_service_impact": service_impact,
+            "network_blast_severity": blast_severity,
             "urgency": res["urgency"],
             "urgency_rationale": urgency_why,
             "components": res["components"],
@@ -234,7 +238,7 @@ class SOCResponseAdvisorAgent:
         predicted_attack_type: str,
         priority_level: str,
         priority_score: float,
-        slice_type: str = "eMBB"
+        **kwargs
     ) -> Dict[str, Any]:
         rec = self.response_engine.recommend_response(
             alert_id=alert_id,
@@ -245,13 +249,7 @@ class SOCResponseAdvisorAgent:
             priority_score=priority_score
         )
 
-        # Slice blast assessment
-        if slice_type == "URLLC":
-            blast_assessment = "Critical (URLLC Ultra-Reliable Low-Latency Slice - strict zero-downtime policy)"
-        elif slice_type == "mMTC":
-            blast_assessment = "Low (mMTC Massive IoT - targeted per-device throttling is acceptable)"
-        else:
-            blast_assessment = "Moderate (eMBB Mobile Broadband - avoid blanket radio teardowns)"
+        blast_assessment = "Targeted Radio/Flow Containment (Enforce dynamic mitigation without broad cell teardown)"
 
         return {
             "agent": self.name,
@@ -264,7 +262,7 @@ class SOCResponseAdvisorAgent:
             "status": rec["status"],
             "impact_risk": rec["impact_risk"],
             "requires_approval": rec["requires_approval"],
-            "slice_blast_assessment": blast_assessment,
+            "network_blast_assessment": blast_assessment,
             "can_rollback": rec.get("can_rollback", True),
             "what_was_detected": rec.get("what_was_detected", f"Traffic behavior consistent with {predicted_attack_type}."),
             "what_to_check": rec.get("evidence_to_inspect", "Packet rates, volume, and incomplete connections."),
@@ -284,7 +282,7 @@ class MultiAgentXAISystem:
     Coordinating Multi-AI Agent System for 5G Intrusion Detection.
     Orchestrates the 3 specialized core agents:
       - Attack Investigator (Single XAI execution for saliency + temporal dynamics)
-      - Risk & Impact Analyst (Operational risk, persistence, slice impact, urgency)
+      - Risk & Impact Analyst (Operational risk, persistence, service impact, urgency)
       - SOC Response Advisor (Evidence-based playbooks, prevention, mitigation, side effects, rollback, verification)
     """
     def __init__(self, xai_engine: ExplainableAIEngine, prioritizer: ThreatPrioritizer, response_engine: DefensiveResponseEngine):
@@ -312,7 +310,7 @@ class MultiAgentXAISystem:
         temporal_w: float = 85.0,
         recent_alert_count: int = 1,
         traffic_rate_ratio: float = 1.0,
-        slice_type: str = "eMBB"
+        **kwargs
     ) -> Dict[str, Any]:
         """
         Executes a streamlined 3-agent investigation with single XAI inference.
@@ -328,19 +326,17 @@ class MultiAgentXAISystem:
             confidence=confidence,
             ue_id=ue_id,
             gnb_id=gnb_id,
-            slice_type=slice_type,
             spatial_w=spatial_w,
             temporal_w=temporal_w
         )
 
-        # 2. Risk & Impact Analyst: Evaluates risk, persistence, and slice blast
+        # 2. Risk & Impact Analyst: Evaluates risk, persistence, and network impact
         risk_report = self.risk_analyst.evaluate(
             predicted_attack_type=predicted_attack_type,
             confidence=confidence,
             is_malicious=is_malicious,
             recent_alert_count=recent_alert_count,
-            traffic_rate_ratio=traffic_rate_ratio,
-            slice_type=slice_type
+            traffic_rate_ratio=traffic_rate_ratio
         )
 
         # 3. SOC Response Advisor: Prescribes attack-specific tested playbook
@@ -350,8 +346,7 @@ class MultiAgentXAISystem:
             gnb_id=gnb_id,
             predicted_attack_type=predicted_attack_type,
             priority_level=risk_report["priority_level"],
-            priority_score=risk_report["priority_score"],
-            slice_type=slice_type
+            priority_score=risk_report["priority_score"]
         )
 
         # Executive Incident Commander synthesis
@@ -359,7 +354,7 @@ class MultiAgentXAISystem:
             incident_title = f"Verified Benign Traffic on {gnb_id} (UE-{ue_id})"
             executive_summary = (
                 f"Consensus confirms normal operating conditions for UE-{ue_id} on {gnb_id} "
-                f"({confidence*100:.1f}% confidence). 5G {slice_type} telemetry matches baseline profiles. "
+                f"({confidence*100:.1f}% confidence). 5G telemetry matches baseline profiles. "
                 "No mitigation or containment action is required."
             )
             recommended_directive = "Continue standard passive telemetry monitoring; no alert ticket needed."
@@ -367,7 +362,7 @@ class MultiAgentXAISystem:
             top_f_str = ", ".join([f"{f['feature_name']}" for f in investigator_report.get("top_features", [])[:2]])
             incident_title = f"5G Security Incident: {predicted_attack_type} on {gnb_id} (UE-{ue_id})"
             executive_summary = (
-                f"Verified {predicted_attack_type} attack detected on {gnb_id} (UE-{ue_id}, {slice_type} slice) "
+                f"Verified {predicted_attack_type} attack detected on {gnb_id} (UE-{ue_id}) "
                 f"with {confidence*100:.1f}% confidence. Attack drivers: {top_f_str} peaking at window t_{investigator_report.get('peak_window')}. "
                 f"Risk evaluated at {risk_report.get('priority_score')}/100 ({risk_report.get('priority_level')}). "
                 f"Prescribed mitigation: {response_report.get('action_name')}."
@@ -390,7 +385,6 @@ class MultiAgentXAISystem:
             "alert_id": alert_id,
             "ue_id": ue_id,
             "gnb_id": gnb_id,
-            "slice_type": slice_type,
             "predicted_attack_type": predicted_attack_type,
             "confidence": round(confidence * 100.0, 2),
             "executive_synthesis": executive_report,

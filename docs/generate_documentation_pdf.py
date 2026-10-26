@@ -206,7 +206,7 @@ def build_pdf():
         [Paragraph("<b>Framework Name:</b>", body_style), Paragraph("HTSTCL-GNN Multi-Agent 5G SOC Platform", body_style)],
         [Paragraph("<b>Status:</b>", body_style), Paragraph("<font color='#15803d'><b>PRODUCTION READY & TESTED (13/13 Passed)</b></font>", body_style)],
         [Paragraph("<b>Core Model:</b>", body_style), Paragraph("Dual-Head GATv2 + GRU Spatio-Temporal Attention (98.12% Multiclass Accuracy)", body_style)],
-        [Paragraph("<b>Target Network:</b>", body_style), Paragraph("3GPP 5G Standalone (SA) gNodeB / User Plane (UPF) / Network Slices (eMBB, URLLC, mMTC)", body_style)],
+        [Paragraph("<b>Target Network:</b>", body_style), Paragraph("3GPP 5G Standalone (SA) Multi-Cell NG-RAN / User Plane (UPF) Architecture", body_style)],
         [Paragraph("<b>Benchmark:</b>", body_style), Paragraph("5G-NIDD Real 5G Testbed Dataset (9 Genuine Attack Types + Benign)", body_style)],
     ]
     meta_table = Table(meta_data, colWidths=[130, 374])
@@ -225,13 +225,12 @@ def build_pdf():
     # 1. EXECUTIVE SUMMARY
     # ---------------------------------------------------------
     story.append(Paragraph("1. Executive Summary & Project Abstract", h1_style))
-    p1 = ("Fifth-generation (5G) cellular networks introduce transformative capabilities including ultra-reliable "
-          "low-latency communication (URLLC), enhanced mobile broadband (eMBB), and massive machine-type communication "
-          "(mMTC). However, the massive densification of user equipment (UE), software-defined network (SDN) softwarization, "
-          "and multi-tenant network slicing introduce unprecedented attack surfaces. Traditional Signature-based and shallow "
-          "Machine Learning Intrusion Detection Systems (IDS) fail to capture the non-Euclidean spatial relationships among "
-          "concurrent wireless nodes and the rapid temporal evolution of modern distributed denial-of-service (DDoS) and "
-          "reconnaissance vectors.")
+    p1 = ("Fifth-generation (5G) cellular networks introduce transformative capabilities including high data-rate "
+          "broadband, low-latency mission-critical communication, and massive IoT connectivity. However, the massive "
+          "densification of user equipment (UE), software-defined network (SDN) softwarization, and cloud-native service-based "
+          "architectures introduce unprecedented attack surfaces. Traditional Signature-based and shallow Machine Learning "
+          "Intrusion Detection Systems (IDS) fail to capture the non-Euclidean spatial relationships among concurrent wireless "
+          "nodes and the rapid temporal evolution of modern distributed denial-of-service (DDoS) and reconnaissance vectors.")
     story.append(Paragraph(p1, body_style))
 
     p2 = ("The <b>HTSTCL-GNN</b> system solves this critical challenge by establishing a novel <i>Hierarchical Temporal "
@@ -250,24 +249,24 @@ def build_pdf():
     # ---------------------------------------------------------
     story.append(Paragraph("2. 5G Wireless Architecture & Threat Vector Taxonomy", h1_style))
     p_arch = ("The system targets a 3GPP 5G Standalone (SA) deployment architecture comprising Next Generation Radio Access "
-              "Networks (NG-RAN) with multiple gNodeBs (gNBs), 5G Core (5GC) control plane functions (AMF, SMF, NSSF), and user "
-              "plane functions (UPF). In accordance with 3GPP network slicing specifications, the platform segregates traffic into "
-              "three dedicated slice identifiers (SST): eMBB (SST 1), URLLC (SST 2), and mMTC (SST 3).")
+              "Networks (NG-RAN) with multiple gNodeBs (gNBs), 5G Core (5GC) control plane functions (AMF, SMF), and user "
+              "plane functions (UPF). The platform continuously monitors multi-cell user plane and signaling traffic across "
+              "distributed base station sectors.")
     story.append(Paragraph(p_arch, body_style))
 
     # Attack Classes Table
     story.append(Paragraph("Genuine 5G Threat Classes Handled by HTSTCL-GNN", h2_style))
-    atk_headers = ["Index", "Attack Class", "Category", "Target Slice", "Severity", "Impact Mechanism in 5G"]
+    atk_headers = ["Index", "Attack Class", "Category", "Affected Plane", "Severity", "Impact Mechanism in 5G"]
     atk_rows = [
-        ["0", "Benign", "Normal Traffic", "All Slices", "Normal", "Legitimate UE signaling, video, voice, telemetry"],
-        ["1", "UDPFlood", "Volumetric DoS", "eMBB / URLLC", "High", "Saturates gNB wireless resource blocks (PRBs) & UPF buffers"],
-        ["2", "HTTPFlood", "Application DDoS", "eMBB", "Critical", "Overwhelms application microservices behind 5G edge UPF"],
-        ["3", "SlowrateDoS", "Low-Rate DoS", "URLLC / eMBB", "High", "Holds open TCP/HTTP sessions to exhaust gNB connection tables"],
-        ["4", "TCPConnectScan", "Reconnaissance", "All Slices", "Medium", "Probes active TCP ports across 5G service endpoints"],
-        ["5", "SYNScan", "Reconnaissance", "All Slices", "Medium", "Stealth half-open scanning evading basic packet filters"],
-        ["6", "UDPScan", "Reconnaissance", "mMTC", "Medium", "Discovers unprotected UDP services on IoT sensor gateways"],
-        ["7", "SYNFlood", "Protocol DoS", "All Slices", "High", "Fills gNB state tables with spoofed half-open connections"],
-        ["8", "ICMPFlood", "Network Ping DoS", "All Slices", "Medium", "Disrupts latency-critical URLLC control signaling"],
+        ["0", "Benign", "Normal Traffic", "All Traffic", "Normal", "Legitimate UE signaling, video, voice, telemetry"],
+        ["1", "UDPFlood", "Volumetric DoS", "User Plane", "High", "Saturates gNB wireless resource blocks (PRBs) & UPF buffers"],
+        ["2", "HTTPFlood", "Application DDoS", "Application Layer", "Critical", "Overwhelms application microservices behind 5G edge UPF"],
+        ["3", "SlowrateDoS", "Low-Rate DoS", "Transport Layer", "High", "Holds open TCP/HTTP sessions to exhaust gNB connection tables"],
+        ["4", "TCPConnectScan", "Reconnaissance", "Control / Endpoints", "Medium", "Probes active TCP ports across 5G service endpoints"],
+        ["5", "SYNScan", "Reconnaissance", "Transport Layer", "Medium", "Stealth half-open scanning evading basic packet filters"],
+        ["6", "UDPScan", "Reconnaissance", "IoT Endpoints", "Medium", "Discovers unprotected UDP services on IoT sensor gateways"],
+        ["7", "SYNFlood", "Protocol DoS", "Control / Transport", "High", "Fills gNB state tables with spoofed half-open connections"],
+        ["8", "ICMPFlood", "Network Ping DoS", "Signaling Bearers", "Medium", "Disrupts latency-critical control signaling"],
     ]
     table_content = [[Paragraph(f"<b>{h}</b>", table_header_style) for h in atk_headers]]
     for row in atk_rows:
@@ -382,7 +381,7 @@ def build_pdf():
     story.append(Spacer(1, 8))
 
     prior_levels = [
-        ["Critical", "85.0 - 100.0", "Immediate Automated Quarantine / Micro-segmentation", "Active DDoS or HTTP Flood saturating 5G slice buffers"],
+        ["Critical", "85.0 - 100.0", "Immediate Automated Quarantine / Micro-segmentation", "Active DDoS or HTTP Flood saturating 5G cell buffers"],
         ["High", "70.0 - 84.9", "Dynamic Rate Limiting / gNB Bandwidth Throttle", "Volumetric UDP Flood, SYN Flood, or Persistent Slowrate DoS"],
         ["Medium", "50.0 - 69.9", "Enhanced Packet Inspection / Logging Escalation", "Systematic port sweeps (TCPConnectScan, SYNScan, UDPScan)"],
         ["Low", "30.0 - 49.9", "Passive Monitoring / Telemetry Retention", "Isolated anomalous flow bursts with low persistence"],
@@ -411,7 +410,7 @@ def build_pdf():
     story.append(Paragraph(p_resp, body_style))
 
     resp_steps = [
-        "<b>Catalog of 5G Containment Actions:</b> Implements UE Radio Resource Isolation, gNB Ingress Rate-Limiting (token bucket algorithm), Target Port & IP Drop Rules, Dynamic Network Slice Re-routing, and DPI Session Termination.",
+        "<b>Catalog of 5G Containment Actions:</b> Implements UE Radio Resource Isolation, gNB Ingress Rate-Limiting (token bucket algorithm), Target Port & IP Drop Rules, Dynamic Route Diversion, and DPI Session Termination.",
         "<b>Lifecycle State Transitions:</b> <code>Detected</code> ➔ <code>Recommended</code> ➔ <code>Awaiting Approval</code> (for High/Critical human-in-the-loop policies) ➔ <code>Executed</code> ➔ <code>Verified</code>.",
         "<b>Full Reversibility & Rollback:</b> Every containment action generates an immutable snapshot of prior gNB filtering rules. Analysts can execute instantaneous rollback (<code>Rolled Back</code>) directly from the console if an alert is deemed a false alarm.",
         "<b>Audit Trail & Verification:</b> All containment actions record cryptographic action IDs, operator signatures, timestamps, and containment verification telemetry."
@@ -452,7 +451,7 @@ def build_pdf():
         ["2. Priority Threat Stream Queue", "Maintains an active queue of all detected threats strictly ordered from Highest to Lowest priority score. Operators can filter by attack class, search by UE ID or gNB, review recommendations, and execute or rollback mitigations with single-click authority."],
         ["3. Simulations & Dataset Ingestion", "Provides 8 one-click pre-configured 5G simulation scenarios (e.g., Multi-cell volumetric flooding, IoT scanning, Slowrate DoS) and drag-and-drop live CSV traffic upload."],
         ["4. Multi-Agent XAI Center", "Interactive explainability workbench displaying Top-5 feature attribution bars, 5-window temporal saliency, faithfulness test badges, and multi-agent AI dialogue rationale."],
-        ["5. 5G Network Topology Map", "Interactive multi-cell radio topology showing gNBs, associated UEs, radio links, and color-coded network slice allocations (eMBB blue, URLLC purple, mMTC green)."],
+        ["5. 5G Network Topology Map", "Interactive multi-cell radio topology showing gNBs, associated UEs, radio links, and cell sector fleet allocations."],
         ["6. Attack Analytics & Benchmarks", "In-depth scientific performance charts displaying class distribution, precision-recall trade-offs, confusion matrices, and ROC-AUC curves."]
     ]
     m_content = [[Paragraph(f"<b>{m[0]}</b>", table_cell_bold), Paragraph(m[1], table_cell_style)] for m in modules]

@@ -35,7 +35,7 @@ def run_test():
     print(f"    - Packet Count: {top_seq.get('packet_count')}")
     print(f"    - Duration: {top_seq.get('duration')}s")
     print(f"    - Protocol: {top_seq.get('protocol')}")
-    print(f"    - Slice Type: {top_seq.get('slice_type')}")
+    print(f"    - Serving gNodeB: {top_seq.get('gnb_id')}")
     print(f"    - How Mitigation Performs: {top_seq.get('how_mitigated')}")
     print(f"    - Action ID: {top_seq.get('action_id')}")
 

@@ -13,7 +13,7 @@
 [![3GPP 5G SA](https://img.shields.io/badge/Network-3GPP%205G%20SA%20Multi--Cell-005A9C)](docs/ARCHITECTURE.md)
 
 > **HTSTCL-GNN — 5G Intrusion Detection and SOC Monitoring System**  
-> An enterprise-grade, end-to-end cybersecurity architecture combining **MATLAB 5G Radio Network Simulation**, **Spatio-Temporal Graph Neural Networks (GATv2 + GRU)**, **Gradient-Based Explainable AI (XAI)**, **Multi-Factor Threat Prioritization**, **Closed-Loop Automated Containment**, and **Privacy-Preserving Federated Learning** for 5G Standalone (SA) multi-slice cellular deployments.
+> An enterprise-grade, end-to-end cybersecurity architecture combining **MATLAB 5G Radio Network Simulation**, **Spatio-Temporal Graph Neural Networks (GATv2 + GRU)**, **Gradient-Based Explainable AI (XAI)**, **Multi-Factor Threat Prioritization**, **Closed-Loop Automated Containment**, and **Privacy-Preserving Federated Learning** for 5G Standalone (SA) multi-cell cellular deployments.
 
 ---
 
@@ -52,7 +52,7 @@
 ## 1. Executive Overview
 
 ### The Cybersecurity Problem in 5G Networks
-Fifth-generation (5G) cellular networks introduce high data rates via **Enhanced Mobile Broadband (eMBB)**, mission-critical guarantees through **Ultra-Reliable Low-Latency Communication (URLLC)**, and sensor scale via **Massive Machine-Type Communication (mMTC)**. However, multi-tenant network slicing, cloud-native service-based architectures (SBA), and open radio access networks (O-RAN) expose critical vulnerabilities. Malicious actors can deploy botnets across IoT slices, execute stealthy reconnaissance sweeps, or launch coordinated volumetric distributed denial-of-service (DDoS) campaigns targeting edge User Plane Functions (UPF) and gNodeB state tables.
+Fifth-generation (5G) cellular networks introduce high data rates, mission-critical low-latency guarantees, and massive sensor connectivity. However, distributed multi-cell deployments, cloud-native service-based architectures (SBA), and open radio access networks (O-RAN) expose critical vulnerabilities. Malicious actors can deploy distributed IoT botnets, execute stealthy reconnaissance sweeps, or launch coordinated volumetric distributed denial-of-service (DDoS) campaigns targeting edge User Plane Functions (UPF) and gNodeB state tables.
 
 ### Why Standard Machine Learning Fails
 Conventional Intrusion Detection Systems (IDS) inspect tabular flow records independently using standard Random Forests, Support Vector Machines, or feedforward Multi-Layer Perceptrons. These models:
@@ -72,7 +72,7 @@ Conventional Intrusion Detection Systems (IDS) inspect tabular flow records inde
 
 To validate detection capabilities under authentic radio conditions, the project integrates a custom **MATLAB 5G Multi-Cell RF Network Simulation** modeled in a $1000\,\text{m} \times 1000\,\text{m}$ cellular service area.
 
-![5G Network Topology (3 gNBs / 45 UEs across eMBB, URLLC, mMTC)](outputs/5g_network_topology_3gnb_45ue.png)
+![5G Network Topology (3 gNBs / 45 UEs across Sector Alpha, Beta, Gamma)](outputs/5g_network_topology_3gnb_45ue.png)
 
 ### Topology Specifications
 
@@ -81,14 +81,14 @@ To validate detection capabilities under authentic radio conditions, the project
 | **Base Stations (gNodeBs)** | **3 gNBs:** `gNB-1` (Sector A: 250m, 550m), `gNB-2` (Sector B: 750m, 550m), `gNB-3` (Sector C: 500m, 200m) | Tri-sector macro-cellular deployment |
 | **Cell Coverage Radius** | **280 meters** per cell with overlapping inter-cell handover zones | Models edge boundary signal degradation |
 | **User Equipments (UEs)** | **45 Active Devices** (UE-1 to UE-45) distributed across cell radii | Realistic non-uniform cellular spatial density |
-| **Network Slice 1: eMBB** | **UE-1 to UE-15** (High-throughput video streaming, downloads, AR/VR) | Associated with large packet sizes and high byte volumes |
-| **Network Slice 2: URLLC** | **UE-16 to UE-30** (Autonomous vehicles, industrial automation, robotics) | Strict sub-millisecond latency & low packet jitter |
-| **Network Slice 3: mMTC** | **UE-31 to UE-45** (Smart utility meters, IoT environmental sensors) | Low-frequency periodic telemetry bursts |
+| **Sector Alpha (gNB-1)** | **UE-1 to UE-15** (High-throughput mobile users, video streaming, downloads) | Associated with large packet sizes and high byte volumes |
+| **Sector Beta (gNB-2)** | **UE-16 to UE-30** (Low-latency telemetry, autonomous vehicles, robotics) | Strict sub-millisecond latency & low packet jitter |
+| **Sector Gamma (gNB-3)** | **UE-31 to UE-45** (Smart utility meters, IoT environmental sensors) | Low-frequency periodic telemetry bursts |
 | **Radio Interfaces** | 3GPP 5G-NR Uu Air Interface (UE to gNB) | Sub-6 GHz carrier frequency with path loss & shadowing |
 | **Backhaul & Core Links** | Inter-gNB Xn Mesh & 5G Core N3 Interface to UPF | High-speed fiber backhaul with buffer limits |
 
 ### MATLAB Scripts
-- **[`visualize_5g_network_topology.m`](visualize_5g_network_topology.m):** Generates and exports the high-resolution topology visualization showing cell radii, UE coordinate positions, slice color coding, and wireless links.
+- **[`visualize_5g_network_topology.m`](visualize_5g_network_topology.m):** Generates and exports the high-resolution topology visualization showing cell radii, UE coordinate positions, sector color coding, and wireless links.
 - **[`generate_5g_simulated_datasets.m`](generate_5g_simulated_datasets.m):** Simulates multi-cell traffic across 6 realistic operational scenarios and exports calibrated flow records directly into `outputs/simulated_traffic/`.
 
 ---
@@ -100,7 +100,7 @@ The following diagram illustrates how telemetry flows through the entire system 
 ```mermaid
 flowchart TD
     subgraph S1["Module 1: 5G Traffic Ingestion"]
-        A1["MATLAB Multi-Cell 5G Sim<br/>(3 gNBs, 45 UEs, 3 Slices)"]
+        A1["MATLAB Multi-Cell 5G Sim<br/>(3 gNBs, 45 UEs, 3 Sectors)"]
         A2["5G-NIDD Benchmark Dataset<br/>(1.2M flows, 9 genuine classes)"]
         A3["Live CSV Telemetry Upload<br/>(SOC Operator Input)"]
     end
@@ -134,7 +134,7 @@ flowchart TD
 
     subgraph S6["Modules 7 & 8: Threat Prioritization & Mitigation"]
         F1["Multi-Factor Threat Prioritizer<br/>ThreatScore = 0.35*Sev + 0.30*Conf + 0.20*Pers + 0.15*Dev"]
-        F2["Defensive Containment Engine<br/>Rate Limiting, Slice Quarantine, Flow Drop"]
+        F2["Defensive Containment Engine<br/>Rate Limiting, Flow Quarantine, Rule Drop"]
         F3["Reversible Containment State Machine<br/>Detected -> Recommended -> Executed -> Rolled Back"]
     end
 
@@ -168,16 +168,16 @@ flowchart TD
 - **Source Files:** [`generate_5g_simulated_datasets.m`](generate_5g_simulated_datasets.m), [`visualize_5g_network_topology.m`](visualize_5g_network_topology.m).
 - **Work Implemented in Project:**
   - Implemented 3 gNodeBs positioned in a $1000\text{m} \times 1000\text{m}$ cellular space with 280-meter coverage radii.
-  - Placed 45 User Equipments (UE-1 to UE-45) across three standardized slices: eMBB (UE 1-15), URLLC (UE 16-30), and mMTC (UE 31-45).
+  - Placed 45 User Equipments (UE-1 to UE-45) across three cell sectors: Sector Alpha (UE 1-15), Sector Beta (UE 16-30), and Sector Gamma (UE 31-45).
   - Modeled radio channel impairments: free-space path loss, log-normal shadowing, Doppler shifts, and resource block allocation.
   - Created 6 distinct, reproducible 10,000-flow multi-cell attack scenarios exported to `outputs/simulated_traffic/`:
     1. `live_5g_sim_1_balanced_all_attacks.csv` (Multi-attack benchmark covering all 8 attacks + 10% Benign)
     2. `live_5g_sim_2_volumetric_ddos_surge.csv` (High-rate UDP/SYN/ICMP flooding)
     3. `live_5g_sim_3_stealth_recon_scan.csv` (Stealth TCP/SYN/UDP port sweeps)
     4. `live_5g_sim_4_app_layer_service_starvation.csv` (HTTP floods & Slowrate DoS)
-    5. `live_5g_sim_5_iot_sensor_slice_burst.csv` (mMTC IoT sensor slice saturation)
+    5. `live_5g_sim_5_iot_botnet_flood.csv` (Massive IoT botnet surge & micro-burst)
     6. `live_5g_sim_6_coordinated_apt_campaign.csv` (Multi-stage advanced persistent threat)
-- **Input Contract:** Simulation parameters (UE count, gNB coordinates, slice IDs, duration).
+- **Input Contract:** Simulation parameters (UE count, gNB coordinates, cell sectors, duration).
 - **Output Contract:** Calibrated CSV flow records containing 15 standardized physical columns matching the 5G-NIDD benchmark format.
 
 ---
@@ -245,13 +245,13 @@ flowchart TD
 - **Source Files:** [`explainable_ai/xai_engine.py`](explainable_ai/xai_engine.py), [`backend/engine.py`](backend/engine.py).
 - **Work Implemented in Project:**
   - Implemented a coordinated multi-agent consensus architecture where specialized AI agents evaluate different aspects of an alert:
-    1. **Attack Investigator Agent:** Validates model confidence, attack classification, and target slice.
+    1. **Attack Investigator Agent:** Validates model confidence, attack classification, and target network entities.
     2. **Saliency Explainer Agent:** Translates mathematical feature gradients into telecommunication terminology.
     3. **Temporal Dynamics Agent:** Pinpoints the onset window ($t_1 - t_5$) and detects escalation patterns.
     4. **Threat Risk Agent:** Computes the multi-factor threat score and assigns operational priority.
     5. **Containment Advisor Agent:** Recommends granular, non-disruptive 5G mitigation policies.
     6. **Executive Synthesizer Agent:** Assembles agent findings into an analyst-ready natural language brief.
-- **Input Contract:** XAI attribution data, threat scores, slice metadata, and predicted attack type.
+- **Input Contract:** XAI attribution data, threat scores, network topology metadata, and predicted attack type.
 - **Output Contract:** Complete multi-agent consensus report with individual agent statements and an executive summary.
 
 ---
@@ -279,8 +279,8 @@ flowchart TD
   - Implemented a 5G Defensive Response Catalog:
     - **Targeted Port / Flow Drop:** Dynamically drops scanning probe flows without isolating the UE.
     - **gNB Ingress Rate-Limiting:** Token bucket bandwidth throttling on volumetric floods (UDPFlood, SYNFlood).
-    - **Radio Resource Isolation:** Disassociates malicious UEs on high-severity attacks while protecting slice integrity.
-    - **Dynamic Slice Re-routing:** Re-routes sensitive URLLC traffic away from impacted base stations.
+    - **Radio Resource Isolation:** Disassociates malicious UEs on high-severity attacks while protecting adjacent legitimate radio bearers.
+    - **Dynamic Route Diversion:** Re-routes sensitive mission-critical traffic away from impacted base stations.
   - **State Machine Lifecycle:** `Detected` $\rightarrow$ `Under Investigation` $\rightarrow$ `Recommended` $\rightarrow$ `Awaiting Approval` $\rightarrow$ `Executed` $\rightarrow$ `Rolled Back`.
   - **Reversibility Guarantee:** Every containment action saves the prior firewall filtering state. Clicking "Rollback" restores standard routing with zero residual rule corruption.
 - **Input Contract:** Action ID (`ACT-xxxxxx`) or Alert ID (`ALT-xxxxxx`), operator ID, authorization notes.
@@ -326,7 +326,7 @@ flowchart TD
     2. **Priority Threat Stream:** Reactive threat queue sorted strictly from Highest to Lowest priority score with 1-click mitigation and rollback.
     3. **Simulations & Upload:** 6 preset simulation scenarios with instant ingestion and custom CSV drag-and-drop.
     4. **Multi-Agent XAI Center:** Visual Top-5 feature attribution bars, 5-window temporal saliency chart, and agent consensus dialogues.
-    5. **5G Network Topology:** Interactive view of gNodeBs, connected UEs, and slice assignments (eMBB, URLLC, mMTC).
+    5. **5G Network Topology:** Interactive view of gNodeBs, connected UEs, and sector fleet assignments.
     6. **Attack Analytics:** Real-time confusion matrix rendering, ROC-AUC curves, and class distribution charts.
   - Optimized production build using Vite: compiles cleanly in 8.39s with zero errors.
 - **Input Contract:** REST API endpoints (`http://127.0.0.1:8000/api/*`).
@@ -340,17 +340,17 @@ The model is trained and verified on the **5G-NIDD benchmark dataset**, a real-w
 
 ### Target Attack Classes
 
-| Index | Class Name | Category | 5G Slice Target | Description & Attack Impact |
+| Index | Class Name | Category | Target 5G Service / Traffic Profile | Description & Attack Impact |
 |:---:|:---|:---|:---:|:---|
-| **0** | **Benign** | Normal | All Slices | Legitimate UE voice, video streaming, signaling, and sensor telemetry |
-| **1** | **UDPFlood** | Volumetric DoS | eMBB / URLLC | Saturates gNB physical resource blocks (PRBs) and UPF packet queues |
-| **2** | **HTTPFlood** | Application DDoS | eMBB | Overwhelms edge application microservices behind the 5G core UPF |
-| **3** | **SlowrateDoS** | Low-Rate DoS | URLLC / eMBB | Holds open TCP sessions to exhaust connection state tables stealthily |
-| **4** | **TCPConnectScan**| Reconnaissance | All Slices | Probes active service ports across multi-cell network endpoints |
-| **5** | **SYNScan** | Reconnaissance | All Slices | Half-open SYN packet scan evading naive packet filtering rules |
-| **6** | **UDPScan** | Reconnaissance | mMTC | Discovers open UDP ports on battery-constrained IoT devices |
-| **7** | **SYNFlood** | Protocol DoS | All Slices | Floods gNB control plane and state buffers with spoofed SYN packets |
-| **8** | **ICMPFlood** | Ping Flood | All Slices | Exhausts radio channel signaling and disrupts latency-critical URLLC flows |
+| **0** | **Benign** | Normal | All Traffic Profiles | Legitimate UE voice, video streaming, signaling, and sensor telemetry |
+| **1** | **UDPFlood** | Volumetric DoS | High-Throughput & Real-Time | Saturates gNB physical resource blocks (PRBs) and UPF packet queues |
+| **2** | **HTTPFlood** | Application DDoS | Mobile Broadband Applications | Overwhelms edge application microservices behind the 5G core UPF |
+| **3** | **SlowrateDoS** | Low-Rate DoS | Mission-Critical / Interactive | Holds open TCP sessions to exhaust connection state tables stealthily |
+| **4** | **TCPConnectScan**| Reconnaissance | All Traffic Profiles | Probes active service ports across multi-cell network endpoints |
+| **5** | **SYNScan** | Reconnaissance | All Traffic Profiles | Half-open SYN packet scan evading naive packet filtering rules |
+| **6** | **UDPScan** | Reconnaissance | IoT & Telemetry Bearers | Discovers open UDP ports on battery-constrained IoT devices |
+| **7** | **SYNFlood** | Protocol DoS | All Traffic Profiles | Floods gNB control plane and state buffers with spoofed SYN packets |
+| **8** | **ICMPFlood** | Ping Flood | Low-Latency Radio Bearers | Exhausts radio channel signaling and disrupts latency-critical cellular flows |
 
 ### Feature & Preprocessing Contract
 - **91 Continuous Features:** Duration, packet counts, directional byte volume, forward/backward inter-arrival time (IAT min/max/mean/std), TCP flags, and window sizing.

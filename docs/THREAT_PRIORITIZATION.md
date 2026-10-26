@@ -18,7 +18,7 @@ Where:
 
 | Priority Level | Score Range | Operational Urgency | Typical Triggering Scenarios |
 |---|---|---|---|
-| **Critical** | $\ge 80.0$ | Immediate Containment Required | High-volume HTTPFlood / UDPFlood saturated on core slices |
+| **Critical** | $\ge 80.0$ | Immediate Containment Required | High-volume HTTPFlood / UDPFlood saturated on cell endpoints |
 | **High** | $65.0 - 79.9$ | Urgent Mitigation Recommended | SYNFlood, SlowrateDoS with high confidence |
 | **Medium** | $45.0 - 64.9$ | Investigation & Monitoring | Reconnaissance scans (SYNScan, TCPConnectScan, UDPScan) |
 | **Low** | $20.0 - 44.9$ | Routine Logging | Low-rate ICMP probes, isolated events |

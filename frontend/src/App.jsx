@@ -91,12 +91,6 @@ const PRIORITY_BADGES = {
   Benign: { bg: "#064e3b", text: "#86efac", border: "#10b981" }
 };
 
-const SLICE_COLORS = {
-  eMBB: { bg: "#1e3a8a", text: "#93c5fd", border: "#3b82f6" },
-  URLLC: { bg: "#4c1d95", text: "#d8b4fe", border: "#8b5cf6" },
-  mMTC: { bg: "#14532d", text: "#86efac", border: "#22c55e" }
-};
-
 export default function App() {
   const [page, setPage] = useState("dashboard");
   const [loading, setLoading] = useState(false);
@@ -494,8 +488,7 @@ export default function App() {
           s.gnb_id,
           s.predicted_attack_type,
           s.priority_level,
-          s.protocol,
-          s.slice_type
+          s.protocol
         ]
           .join(" ")
           .toLowerCase()
@@ -600,7 +593,7 @@ export default function App() {
               {page === "live" && "Prioritized 5G Threat Mitigation Queue (High ➔ Low)"}
               {page === "upload" && "5G Simulation Datasets & Live CSV Ingestion"}
               {page === "investigate" && "Multi-AI Agent Explainable AI & Containment"}
-              {page === "topology" && "5G Multi-Cell Cellular Topology & UE Slice Mapping"}
+              {page === "topology" && "5G Multi-Cell Cellular Topology & UE Allocation"}
               {page === "analytics" && "Multiclass 5G Attack Analytics (5G-NIDD)"}
             </h2>
             <p style={{ margin: 0, fontSize: "0.88rem", color: "#94a3b8" }}>
@@ -761,7 +754,7 @@ export default function App() {
                   {currentTopActiveThreat.gnb_id} (Sector {currentTopActiveThreat.gnb_id?.includes('1') ? 'A' : currentTopActiveThreat.gnb_id?.includes('2') ? 'B' : currentTopActiveThreat.gnb_id?.includes('3') ? 'C' : 'Alpha'})
                 </div>
                 <div style={{ fontSize: "0.78rem", color: "#cbd5e1" }}>
-                  Target: <b>UE-{currentTopActiveThreat.ue_id}</b> | Slice: <b>{currentTopActiveThreat.slice_type}</b>
+                  Target: <b>UE-{currentTopActiveThreat.ue_id}</b> | Protocol: <b>{currentTopActiveThreat.protocol}</b>
                 </div>
               </div>
 
@@ -922,7 +915,7 @@ export default function App() {
                   </span>
                 </div>
                 <p style={{ margin: "6px 0 0 0", fontSize: "0.85rem", color: "#94a3b8" }}>
-                  100% containment coverage achieved across all serving gNBs (Sector Alpha) and 5G network slices. Zero active threats pending mitigation.
+                  100% containment coverage achieved across all serving gNBs (Sector Alpha) and cellular endpoints. Zero active threats pending mitigation.
                 </p>
               </div>
             </div>
@@ -1043,7 +1036,7 @@ export default function App() {
 
         {/* ========================================================
             PAGE: PRIORITIZED THREAT MITIGATION QUEUE (HIGH ➔ LOW)
-            (Includes PacketCount, Duration, Protocol, SliceType,
+            (Includes PacketCount, Duration, Protocol,
              Where Detected, When Prevented, How Mitigation Performed)
         ======================================================== */}
         {(page === "live" || page === "dashboard") && !loading && (
@@ -1644,8 +1637,6 @@ export default function App() {
                             <div>Target: <b style={{ color: "#38bdf8" }}>UE-{investigator.affected_ue ?? selectedAlert.ue_id}</b></div>
                             <div>•</div>
                             <div>Serving: <b style={{ color: "#f8fafc" }}>{investigator.serving_gnb || selectedAlert.gnb_id}</b></div>
-                            <div>•</div>
-                            <div>Slice: <b style={{ color: "#c084fc" }}>5G {investigator.slice_type || "eMBB"}</b></div>
                           </div>
 
                           {/* Human readable statement */}
@@ -1740,7 +1731,7 @@ export default function App() {
                                   Agent 2: Risk & Impact Analyst
                                 </h4>
                                 <div style={{ fontSize: "0.75rem", color: "#64748b" }}>
-                                  Priority Scoring, 5G Slice Blast & Urgency Rationale
+                                  Priority Scoring, 5G Network Blast & Urgency Rationale
                                 </div>
                               </div>
                             </div>
@@ -1803,16 +1794,16 @@ export default function App() {
                           {/* 5G Service Impact & Blast Radius */}
                           <div style={{ background: "#1e293b", padding: "12px 14px", borderRadius: "8px", fontSize: "0.78rem" }}>
                             <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "4px" }}>
-                              <span style={{ fontWeight: "700", color: "#38bdf8" }}>5G Service & Slice Blast Impact:</span>
+                              <span style={{ fontWeight: "700", color: "#38bdf8" }}>5G Service & Network Blast Impact:</span>
                               <span style={{
                                 fontWeight: "700",
-                                color: riskAnalyst.slice_blast_severity === "Critical" ? "#ef4444" : (riskAnalyst.slice_blast_severity === "High" ? "#f59e0b" : "#10b981")
+                                color: (riskAnalyst.network_blast_severity || "Moderate") === "Critical" ? "#ef4444" : ((riskAnalyst.network_blast_severity || "Moderate") === "High" ? "#f59e0b" : "#10b981")
                               }}>
-                                {riskAnalyst.slice_blast_severity || "Moderate"}
+                                {riskAnalyst.network_blast_severity || "Moderate"}
                               </span>
                             </div>
                             <div style={{ color: "#cbd5e1", lineHeight: "1.5" }}>
-                              {riskAnalyst.possible_service_impact || "Standard mobile broadband latency and bandwidth degradation on serving cell."}
+                              {riskAnalyst.possible_service_impact || "Standard cellular channel bandwidth and latency degradation on serving cell."}
                             </div>
                           </div>
                         </div>
@@ -2223,10 +2214,10 @@ export default function App() {
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "16px", marginBottom: "20px" }}>
                 <div>
                   <h3 style={{ fontSize: "1.25rem", fontWeight: "700", margin: "0 0 6px 0", color: "#f8fafc" }}>
-                    Simulated 5G Multi-Cell Cellular Topology & UE Slice Allocation
+                    Simulated 5G Multi-Cell Cellular Topology & UE Allocation
                   </h3>
                   <p style={{ fontSize: "0.86rem", color: "#94a3b8", margin: 0 }}>
-                    3 Serving Base Stations (gNB-1, gNB-2, gNB-3) monitoring 45 User Equipments (UE-1 through UE-45) partitioned across 3 standardized 5G Network Slices.
+                    3 Serving Base Stations (gNB-1, gNB-2, gNB-3) monitoring 45 User Equipments (UE-1 through UE-45) distributed across cellular sectors.
                   </p>
                 </div>
                 <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
@@ -2253,27 +2244,27 @@ export default function App() {
                 </div>
               </div>
 
-              {/* 5G Network Slices Allocation Guide */}
+              {/* 5G Fleet Status Guide */}
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "14px", background: "#020617", padding: "14px", borderRadius: "8px", border: "1px solid #1e293b" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                  <div style={{ width: "12px", height: "12px", borderRadius: "3px", background: "#3b82f6" }} />
+                  <div style={{ width: "12px", height: "12px", borderRadius: "3px", background: "#38bdf8" }} />
                   <div>
-                    <div style={{ fontSize: "0.82rem", fontWeight: "700", color: "#93c5fd" }}>eMBB (Enhanced Mobile Broadband)</div>
-                    <div style={{ fontSize: "0.72rem", color: "#64748b" }}>UE-1 to UE-15 (High throughput video & data)</div>
+                    <div style={{ fontSize: "0.82rem", fontWeight: "700", color: "#93c5fd" }}>Nominal Cellular Traffic</div>
+                    <div style={{ fontSize: "0.72rem", color: "#64748b" }}>Baseline 5G user plane & signaling flows</div>
                   </div>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                  <div style={{ width: "12px", height: "12px", borderRadius: "3px", background: "#8b5cf6" }} />
+                  <div style={{ width: "12px", height: "12px", borderRadius: "3px", background: "#ef4444" }} />
                   <div>
-                    <div style={{ fontSize: "0.82rem", fontWeight: "700", color: "#d8b4fe" }}>URLLC (Ultra-Reliable Low-Latency)</div>
-                    <div style={{ fontSize: "0.72rem", color: "#64748b" }}>UE-16 to UE-30 (Mission-critical telemetry)</div>
+                    <div style={{ fontSize: "0.82rem", fontWeight: "700", color: "#fca5a5" }}>Active Attack Target</div>
+                    <div style={{ fontSize: "0.72rem", color: "#64748b" }}>Flagged anomaly pending mitigation</div>
                   </div>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                  <div style={{ width: "12px", height: "12px", borderRadius: "3px", background: "#22c55e" }} />
+                  <div style={{ width: "12px", height: "12px", borderRadius: "3px", background: "#10b981" }} />
                   <div>
-                    <div style={{ fontSize: "0.82rem", fontWeight: "700", color: "#86efac" }}>mMTC (Massive Machine-Type)</div>
-                    <div style={{ fontSize: "0.72rem", color: "#64748b" }}>UE-31 to UE-45 (Sensors & IoT devices)</div>
+                    <div style={{ fontSize: "0.82rem", fontWeight: "700", color: "#86efac" }}>Contained / Protected</div>
+                    <div style={{ fontSize: "0.72rem", color: "#64748b" }}>Automated response rule successfully enforced</div>
                   </div>
                 </div>
               </div>
@@ -2319,9 +2310,6 @@ export default function App() {
                     {/* 15 UEs per gNB (5 cols x 3 rows) */}
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: "8px" }}>
                       {gnb.ues.map(ueNum => {
-                        const sliceName = ueNum <= 15 ? "eMBB" : ueNum <= 30 ? "URLLC" : "mMTC";
-                        const sliceColor = ueNum <= 15 ? "#3b82f6" : ueNum <= 30 ? "#8b5cf6" : "#22c55e";
-                        
                         const ueSeqs = rawSequences.filter(s => s.ue_id === ueNum);
                         const isMalicious = ueSeqs.some(s => s.prediction === "Malicious" && !s.is_mitigated);
                         const isPrevented = ueSeqs.some(s => s.is_mitigated);
@@ -2334,7 +2322,7 @@ export default function App() {
                               if (activeThreatSeq) handleSelectSequence(activeThreatSeq);
                               else if (ueSeqs.length > 0) handleSelectSequence(ueSeqs[0]);
                             }}
-                            title={`UE-${ueNum} [${sliceName}] - ${isMalicious ? 'Active Attack Detected' : isPrevented ? 'Contained' : 'Nominal'}`}
+                            title={`UE-${ueNum} - ${isMalicious ? 'Active Attack Detected' : isPrevented ? 'Contained' : 'Nominal'}`}
                             style={{
                               padding: "8px 4px",
                               borderRadius: "6px",
@@ -2348,9 +2336,6 @@ export default function App() {
                             }}
                           >
                             <div style={{ fontWeight: "700", color: "#f8fafc" }}>UE-{ueNum}</div>
-                            <div style={{ fontSize: "0.62rem", color: sliceColor, fontWeight: "600", marginTop: "1px" }}>
-                              {sliceName}
-                            </div>
                             <div style={{
                               fontSize: "0.62rem",
                               color: isMalicious ? "#fca5a5" : (isPrevented ? "#86efac" : "#64748b"),

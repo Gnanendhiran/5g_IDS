@@ -277,13 +277,13 @@ def list_simulated_scenarios():
         },
         {
             "id": 5,
-            "filename": "live_5g_sim_5_iot_sensor_slice_burst.csv",
-            "title": "Scenario 5: Massive IoT / mMTC Slice Micro-Burst",
-            "description": "10,000 flows simulating dense smart meter / sensor slices with intermittent bursts and 10% Benign across 45 UEs and 3 gNodeBs.",
+            "filename": "live_5g_sim_5_iot_botnet_flood.csv",
+            "title": "Scenario 5: Massive IoT Botnet Surge / Micro-Burst",
+            "description": "10,000 flows simulating dense smart meter / sensor clusters with intermittent bursts and 10% Benign across 45 UEs and 3 gNodeBs.",
             "classes_included": ["Benign", "UDPScan", "UDPFlood", "SlowrateDoS", "ICMPFlood"],
             "records": 10000,
             "sequences": 400,
-            "exists": (sim_dir / "live_5g_sim_5_iot_sensor_slice_burst.csv").exists()
+            "exists": (sim_dir / "live_5g_sim_5_iot_botnet_flood.csv").exists()
         },
         {
             "id": 6,

@@ -36,7 +36,7 @@ class DefensiveResponseEngine:
             "requires_approval": True,
             "default_params": {"max_bitrate_kbps": 50, "duration_seconds": 300},
             "what_was_detected": "An unusually high volume of UDP traffic consistent with a flooding attack.",
-            "evidence_to_inspect": "UDP packet rate, destination concentration, traffic volume, and impact on the affected service or network slice.",
+            "evidence_to_inspect": "UDP packet rate, destination concentration, traffic volume, and impact on the affected 5G service or radio bearer.",
             "prevention": "Use protocol-aware rate limits, traffic filtering, and upstream DDoS protection where available.",
             "recommended_mitigation": "Apply targeted filtering or rate limiting and escalate to upstream network protection if saturation is confirmed. Avoid indiscriminately blocking an entire UE or gNB.",
             "possible_side_effects": "Legitimate UDP traffic sharing the destination IP or port may experience brief packet loss or jitter during peak saturation.",
@@ -53,7 +53,7 @@ class DefensiveResponseEngine:
             "what_was_detected": "High-frequency TCP SYN packet burst without completing the three-way handshake, exhausting state memory.",
             "evidence_to_inspect": "TCP SYN rate, SYN/ACK ratio, half-open socket counts in connection tables, and temporal accumulation across windows.",
             "prevention": "Enable cryptographic SYN cookies at the 5G UPF/gateway, enforce per-UE embryonic connection limits, and configure adaptive TCP SYN backlog queue thresholds.",
-            "recommended_mitigation": "Activate SYN cookie verification and per-flow ingress rate limiting on the serving gNB/UPF. Do not disconnect the entire UE if other slices carry legitimate traffic.",
+            "recommended_mitigation": "Activate SYN cookie verification and per-flow ingress rate limiting on the serving gNB/UPF. Do not disconnect the entire UE if other sessions carry legitimate traffic.",
             "possible_side_effects": "Minor initial handshake latency overhead during cryptographic cookie hashing; slight CPU increase on gateway.",
             "rollback_steps": "Deactivate SYN cookie mode, restore standard TCP backlog buffers, and clear dynamic ingress throttling rules.",
             "how_to_verify_recovery": "Monitor TCP connection table usage, confirm half-open connections normalize, and verify legitimate TCP handshake completion times."
@@ -75,17 +75,17 @@ class DefensiveResponseEngine:
         },
         "HTTPFlood": {
             "recommended_action": "QUARANTINE_UE",
-            "action_name": "Targeted Layer-7 Rate Limiting & Slice Quarantine",
-            "description": "Detach abusive application flow to quarantine slice for deep inspection while preserving baseline 5G signaling.",
+            "action_name": "Targeted Layer-7 Rate Limiting & Flow Quarantine",
+            "description": "Detach abusive application flow to quarantine buffer for deep inspection while preserving baseline 5G signaling.",
             "impact_risk": "High",
             "requires_approval": True,
             "default_params": {"quarantine_vlan": 999, "duration_seconds": 600},
             "what_was_detected": "Volumetric HTTP/HTTPS request flood designed to deplete layer-7 web application server resources.",
             "evidence_to_inspect": "HTTP request rates, URI distribution, User-Agent patterns, response status code ratios (502/503/504), and byte volumes.",
             "prevention": "Deploy Web Application Firewall (WAF) rate controls, implement CAPTCHA/challenge-response mechanisms, and enforce per-UE HTTP request quotas.",
-            "recommended_mitigation": "Apply application-layer rate limiting and temporarily isolate abusive layer-7 flows to an inspection quarantine slice while keeping primary signaling intact.",
+            "recommended_mitigation": "Apply application-layer rate limiting and temporarily isolate abusive layer-7 flows to an inspection quarantine buffer while keeping primary signaling intact.",
             "possible_side_effects": "Abusive web sessions receive HTTP 429; legitimate concurrent web requests from the same UE may experience delay.",
-            "rollback_steps": "Revoke layer-7 rate limits, restore standard eMBB slice routing, and clear IP reputation blacklists.",
+            "rollback_steps": "Revoke layer-7 rate limits, restore standard routing, and clear IP reputation blacklists.",
             "how_to_verify_recovery": "Verify HTTP request rates return to baseline, backend web server 5xx error rates subside, and page load times stabilize."
         },
         "TCPConnectScan": {
@@ -98,7 +98,7 @@ class DefensiveResponseEngine:
             "what_was_detected": "Systematic sequential or randomized TCP full-connection probes mapping active service ports.",
             "evidence_to_inspect": "Rapid succession of completed/reset TCP handshakes across multiple destination ports, low payload byte counts, and temporal scanning spikes.",
             "prevention": "Implement strict ingress firewall rules, hide unused ports, deploy port-knocking or honeypot traps, and rate-limit connection initiation.",
-            "recommended_mitigation": "Enforce dynamic flow drop on the scanning source IP/port range for 300 seconds. Avoid blocking the entire radio slice.",
+            "recommended_mitigation": "Enforce dynamic flow drop on the scanning source IP/port range for 300 seconds. Avoid blocking the entire radio bearer.",
             "possible_side_effects": "Scanned probe packets dropped; genuine multi-port applications on the same IP may encounter temporary connection delays.",
             "rollback_steps": "Flush dynamic port-block firewall rule and restore standard port forwarding.",
             "how_to_verify_recovery": "Check that connection attempts across multiple destination ports cease, firewall drop counters decline, and normal flows resume."
