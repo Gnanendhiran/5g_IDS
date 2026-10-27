@@ -21,6 +21,7 @@
 ## Table of Contents
 
 - [1. Executive Overview](#1-executive-overview)
+  - [Project Evolution Across Reviews (Review-1 vs. Review-2 vs. Review-3)](#project-evolution-across-reviews-review-1-vs-review-2-vs-review-3)
 - [2. MATLAB 5G Cellular Network Topology](#2-matlab-5g-cellular-network-topology)
 - [3. End-to-End System Architecture](#3-end-to-end-system-architecture)
 - [4. Detailed Module-by-Module Technical Breakdown](#4-detailed-module-by-module-technical-breakdown)
@@ -69,6 +70,21 @@ Conventional Intrusion Detection Systems (IDS) inspect tabular flow records inde
 - **Collaborative 3-Agent SOC System:** Coordinates **Three Specialized Core AI Agents Only** (Attack Investigator, Risk & Impact Analyst, SOC Response Advisor) synthesized by an Executive Incident Commander.
 - **Dynamic Threat Prioritization:** Evaluates threat severity, calibrated model confidence, persistence, and traffic rate deviation under 3GPP security standards.
 - **Closed-Loop Surgical Containment:** Enforces protocol-aware mitigation playbooks with instantaneous rollback capability.
+
+### Project Evolution Across Reviews (Review-1 vs. Review-2 vs. Review-3)
+
+| Review-1 | Review-2 | Review-3 |
+|---|---|---|
+| **5G-NIDD Dataset:** 1,215,890 flow records, 91 features, 2 classes | **HTSTCL-GNN:** Proposed model developed using GAT + 2-layer GRU + hierarchical attention + FC classifier | **Dual-Head HTSTCL-GNN:** Upgraded to dual-head architecture: Binary (2 classes) + Multiclass (9 genuine 5G attack classes) |
+| **Preprocessing:** StandardScaler applied using the Python training scaler | **Training:** Model trained using 48,635 graph sequences | **Multiclass Metrics:** 7,296 test sequences; **98.12% Test Accuracy**, **98.83% Macro F1**, **99.86% ROC-AUC**, 32 ms/seq latency |
+| **Progressive Windows:** 5 flow records/window → 243,178 graphs | **Validation:** 7,295 validation sequences; 98.44% Validation accuracy | **Mathematical XAI:** Gradient $\times$ Input feature saliency (Top-5) + 5-window temporal peak ($t_1 \dots t_5$) + Perturbation faithfulness test |
+| **Graph:** 5 nodes + 10 directed edges/graph | **Testing:** 7,296 test sequences; 98.41% test accuracy | **Collaborative 3-Agent SOC:** Three Specialized AI Agents (Attack Investigator, Risk & Impact Analyst, SOC Response Advisor) + Incident Commander |
+| **Temporal Sequence:** 5 graphs/sequence → 48,635 sequences | **MATLAB 5G Environment:** 3 Base Stations + 30 UEs | **Threat Prioritization:** 4-Factor mathematical scoring ($\text{ThreatScore} = 0.45 S_{\text{base}} + 0.25 C + 0.15 P + 0.15 D$) across 5 operational tiers |
+| **Class Distribution:** 17,738 benign + 30,897 malicious sequences | **Simulation Traffic:** 1002 samples — 408 benign + 594 malicious | **Defensive Containment:** 7-action protocol mitigation catalog, Reversible State Machine (`Detected` → `Recommended` → `Executed` → `Rolled Back`), RBAC, 1-click rollback |
+| **Input Dimension:** 5 × 91 features × 5 graphs | **Prediction:** MATLAB-generated 5G traffic classified using the trained HTSTCL-GNN | **Federated Learning:** 3 gNodeB edge clients, FedAvg server aggregation ($\boldsymbol{\Theta}_{\text{global}} = \sum \frac{N_k}{N}\boldsymbol{\Theta}_k$), 28.61 MB/round bandwidth, 98.5% convergence |
+| — | — | **MATLAB 5G Environment:** Scaled to **3 Base Stations + 45 UEs** across Sector Alpha, Beta, Gamma in $1000\,\text{m} \times 1000\,\text{m}$ area |
+| — | — | **Simulation Traffic:** 10 operational scenario datasets (100,000 flows total; 400 sequences / 10,000 flows each, calibrated 10.0% Benign baseline) |
+| — | — | **Full-Stack SOC Console:** High-throughput FastAPI REST API backend (Port 8000) + React 18 / Vite dark-mode dashboard (Port 5173) with real-time containment |
 
 ---
 
